@@ -44,7 +44,7 @@ export default function InvestorDetailScreen() {
       .select("*")
       .eq("id", id)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: unknown }) => {
         const investor = data as unknown as Investor;
         setInvestor(investor);
         if (investor) navigation.setOptions({ title: investor.name });

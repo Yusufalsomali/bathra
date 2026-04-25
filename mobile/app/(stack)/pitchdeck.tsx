@@ -13,7 +13,7 @@ import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { supabase } from "@/lib/supabase/client";
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+import { File as FSFile } from "expo-file-system";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Ionicons } from "@expo/vector-icons";
@@ -56,31 +56,22 @@ export default function PitchDeckScreen() {
 
       const file = result.assets[0];
 
-      // Check file size
-      const fileInfo = await FileSystem.getInfoAsync(file.uri);
-      if (fileInfo.exists && "size" in fileInfo) {
-        const sizeMB = fileInfo.size / (1024 * 1024);
-        if (sizeMB > MAX_FILE_SIZE_MB) {
-          Alert.alert(
-            t("common.error"),
-            `File too large. Max ${MAX_FILE_SIZE_MB}MB allowed.`
-          );
-          return;
-        }
-      }
-
       setUploading(true);
 
-      // Read file as base64
-      const base64 = await FileSystem.readAsStringAsync(file.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      // Read file using new expo-file-system File class API
+      const fsFile = new FSFile(file.uri);
+      const arrayBuffer = await fsFile.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
 
-      // Decode base64 to Uint8Array
-      const binaryString = atob(base64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+      // Basic size check
+      const sizeMB = bytes.byteLength / (1024 * 1024);
+      if (sizeMB > MAX_FILE_SIZE_MB) {
+        setUploading(false);
+        Alert.alert(
+          t("common.error"),
+          `File too large. Max ${MAX_FILE_SIZE_MB}MB allowed.`
+        );
+        return;
       }
 
       const fileName = `${user?.id}/${Date.now()}_pitchdeck.pdf`;

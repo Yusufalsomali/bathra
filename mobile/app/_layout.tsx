@@ -19,13 +19,7 @@ export default function RootLayout() {
       <I18nProvider>
         <AuthProvider>
           <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(stack)" options={{ headerShown: false }} />
-            <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <Stack screenOptions={{ headerShown: false }} />
         </AuthProvider>
       </I18nProvider>
     </GestureHandlerRootView>

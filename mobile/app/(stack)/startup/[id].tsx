@@ -48,7 +48,7 @@ export default function StartupDetailScreen() {
       .select("*")
       .eq("id", id)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: unknown }) => {
         const startup = data as unknown as Startup;
         setStartup(startup);
         if (startup) navigation.setOptions({ title: startup.startup_name || startup.name });

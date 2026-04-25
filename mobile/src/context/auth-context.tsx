@@ -122,7 +122,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [buildAppUser]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
+
+    supabase.auth.getSession().then(async ({ data: { session } }: { data: { session: import("@supabase/supabase-js").Session | null } }) => {
       setSession(session);
       if (session?.user) {
         const appUser = await buildAppUser(session.user);
@@ -132,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (_event: string, session: import("@supabase/supabase-js").Session | null) => {
         setSession(session);
         if (session?.user) {
           const appUser = await buildAppUser(session.user);

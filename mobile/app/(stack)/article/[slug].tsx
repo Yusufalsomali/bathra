@@ -31,7 +31,7 @@ export default function ArticleDetailScreen() {
       .eq("slug", slug)
       .eq("status", "published")
       .single()
-      .then(async ({ data }) => {
+      .then(async ({ data }: { data: unknown }) => {
         const article = data as unknown as Article;
         setArticle(article);
         if (article) {
