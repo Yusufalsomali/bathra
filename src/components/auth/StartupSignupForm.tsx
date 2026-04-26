@@ -16,11 +16,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader, Plus, X, Upload } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { useSimpleAuth } from "@/lib/simple-auth-service";
 import { uploadPitchDeck } from "@/lib/storage-service";
+import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface CoFounder {
   name: string;
@@ -181,7 +181,7 @@ export default function StartupSignupForm() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const { signUp } = useSimpleAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const addSocialMedia = () => {
@@ -296,97 +296,95 @@ export default function StartupSignupForm() {
     setErrors([]);
 
     try {
-      // First, upload pitch deck if provided
       let pitchDeckUrl = formData.pitchDeckUrl;
+
+      const registrationData = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.founderName,
+        accountType: "startup" as const,
+        phone: formData.phone,
+        startupName: formData.startupName,
+        website: formData.website,
+        industry: formData.industry,
+        stage: formData.stage,
+        logoUrl: formData.logoUrl,
+        socialMediaAccounts: formData.socialMediaAccounts,
+        problemSolving: formData.problemSolving,
+        solutionDescription: formData.solutionDescription,
+        uniqueValueProposition: formData.uniqueValueProposition,
+        currentRevenue: formData.currentRevenue,
+        hasReceivedFunding: formData.hasReceivedFunding,
+        monthlyBurnRate: formData.monthlyBurnRate,
+        investmentInstrument: formData.investmentInstrument,
+        capitalSeeking: formData.capitalSeeking,
+        preMoneyValuation: formData.preMoneyValuation,
+        fundingAlreadyRaised: formData.fundingAlreadyRaised,
+        pitchDeckUrl: pitchDeckUrl,
+        coFounders: formData.coFounders,
+        calendlyLink: formData.calendlyLink,
+        videoLink: formData.videoLink,
+        additionalVideoUrl: formData.additionalVideoUrl,
+        teamSize: formData.teamSize,
+        achievements: formData.achievements,
+        risksAndMitigation: formData.risksAndMitigation,
+        exitStrategy: formData.exitStrategy,
+        participatedAccelerator: formData.participatedAccelerator,
+        acceleratorDetails: formData.acceleratorDetails,
+        additionalFiles: formData.additionalFiles,
+        newsletterSubscribed: formData.acceptNewsletter,
+      };
+
+      const success = await signUp(registrationData);
+
+      if (!success) {
+        setErrors([t("registrationFailedPleaseTryAgainError")]);
+        setIsSubmitting(false);
+        return;
+      }
+
       if (formData.pitchDeckFile) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          setErrors(["Signup succeeded but no authenticated user session was found."]);
+          setIsSubmitting(false);
+          return;
+        }
+
         setIsUploadingFile(true);
         const uploadResult = await uploadPitchDeck(
           formData.pitchDeckFile,
-          formData.email
+          user.id
         );
         setIsUploadingFile(false);
 
-        if (!uploadResult.success) {
+        if (!uploadResult.success || !uploadResult.url) {
           setErrors([uploadResult.error || t("failedToUploadPitchDeckError")]);
           setIsSubmitting(false);
           return;
         }
 
         pitchDeckUrl = uploadResult.url;
+
+        const { error: startupUpdateError } = await supabase
+          .from("startups")
+          .update({
+            pitch_deck: pitchDeckUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", user.id);
+
+        if (startupUpdateError) {
+          setErrors([startupUpdateError.message]);
+          setIsSubmitting(false);
+          return;
+        }
       }
 
-      // Then, sign up with basic credentials
-      const result = await signUp({
-        email: formData.email,
-        password: formData.password,
-        name: formData.founderName,
-        accountType: "startup",
-      });
-
-      // Check if user already exists by examining the identities array
-      // An empty identities array indicates the user already exists
-      if (
-        result.user &&
-        result.user.id &&
-        result.emailVerificationSent &&
-        "identities" in result.user &&
-        Array.isArray(result.user.identities) &&
-        result.user.identities.length === 0
-      ) {
-        setErrors([t("accountWithThisEmailAlreadyExistsError")]);
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (result.emailVerificationSent) {
-        // Store the full registration data in sessionStorage for OTP verification
-        const fullRegistrationData = {
-          email: formData.email,
-          password: formData.password,
-          name: formData.founderName,
-          accountType: "startup" as const,
-          // Additional startup-specific data
-          phone: formData.phone,
-          startupName: formData.startupName,
-          website: formData.website,
-          industry: formData.industry,
-          stage: formData.stage,
-          logoUrl: formData.logoUrl,
-          socialMediaAccounts: formData.socialMediaAccounts,
-          problemSolving: formData.problemSolving,
-          solutionDescription: formData.solutionDescription,
-          uniqueValueProposition: formData.uniqueValueProposition,
-          currentRevenue: formData.currentRevenue,
-          hasReceivedFunding: formData.hasReceivedFunding,
-          monthlyBurnRate: formData.monthlyBurnRate,
-          investmentInstrument: formData.investmentInstrument,
-          capitalSeeking: formData.capitalSeeking,
-          preMoneyValuation: formData.preMoneyValuation,
-          fundingAlreadyRaised: formData.fundingAlreadyRaised,
-          pitchDeckUrl: pitchDeckUrl,
-          coFounders: formData.coFounders,
-          calendlyLink: formData.calendlyLink,
-          videoLink: formData.videoLink,
-          additionalVideoUrl: formData.additionalVideoUrl,
-          teamSize: formData.teamSize,
-          achievements: formData.achievements,
-          risksAndMitigation: formData.risksAndMitigation,
-          exitStrategy: formData.exitStrategy,
-          participatedAccelerator: formData.participatedAccelerator,
-          acceleratorDetails: formData.acceleratorDetails,
-          additionalFiles: formData.additionalFiles,
-          agreeToTerms: formData.agreeToTerms,
-          newsletterSubscribed: formData.acceptNewsletter,
-        };
-
-        sessionStorage.setItem(
-          "pendingRegistration",
-          JSON.stringify(fullRegistrationData)
-        );
-
-        toast.success(t("registrationSuccessfulEmailVerificationMessage"));
-        navigate("/verify-email", { state: { email: formData.email } });
-      }
+      navigate("/pending-verification");
     } catch (error) {
       console.error("Registration error:", error);
       // Check for specific error types from Supabase

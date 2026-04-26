@@ -19,6 +19,9 @@ export interface StartupBasicInfo {
   key_metrics?: string;
   funding_required?: string;
   valuation?: string;
+  funding_goal?: number;
+  valuation_amount?: number;
+  already_raised_amount?: number;
   verified?: boolean;
   image?: string;
   logo?: string;

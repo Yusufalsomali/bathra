@@ -5,13 +5,18 @@ import { supabase, Investor } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { User, ArrowRight, Building, Eye } from "lucide-react";
+import { User, ArrowRight } from "lucide-react";
 import MatchmakingOrb from "@/components/MatchmakingOrb";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
 import { MatchmakingService } from "@/lib/matchmaking-service";
 import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
+import { PaperVentureService } from "@/lib/paper-venture-service";
+import { InvestorPortfolioSummary } from "@/lib/paper-venture-types";
+import InvestorPortfolioSection from "@/components/paper-venture/InvestorPortfolioSection";
+import AddVirtualFundsDialog from "@/components/paper-venture/AddVirtualFundsDialog";
+import { toast } from "@/hooks/use-toast";
 
 const InvestorDashboard = () => {
   const { user, profile } = useAuth();
@@ -21,6 +26,9 @@ const InvestorDashboard = () => {
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
   const [hasMatchedStartups, setHasMatchedStartups] = useState(false);
   const [matchedStartupsCount, setMatchedStartupsCount] = useState(0);
+  const [portfolioSummary, setPortfolioSummary] =
+    useState<InvestorPortfolioSummary | null>(null);
+  const [isAddFundsOpen, setIsAddFundsOpen] = useState(false);
 
   useEffect(() => {
     const fetchInvestorData = async () => {
@@ -28,15 +36,20 @@ const InvestorDashboard = () => {
         if (!user?.id) return;
 
         // Fetch investor details and matchmakings in parallel
-        const [investorResult, matchmakingsResult] = await Promise.all([
+        const [investorResult, matchmakingsResult, portfolioResult] =
+          await Promise.all([
           supabase.from("investors").select("*").eq("id", user.id).single(),
           MatchmakingService.getMatchmakingsByInvestor(user.id),
+          PaperVentureService.getInvestorPortfolioSummary(user.id),
         ]);
 
         if (investorResult.error) throw investorResult.error;
 
         if (investorResult.data) {
           setInvestorDetails(investorResult.data);
+        }
+        if (portfolioResult.data) {
+          setPortfolioSummary(portfolioResult.data);
         }
 
         // Check for active matchmakings
@@ -75,6 +88,56 @@ const InvestorDashboard = () => {
       fetchInvestorData();
     }
   }, [user, navigate]);
+
+  const handleAddFunds = async (amount: number) => {
+    if (!user?.id) return;
+
+    const result = await PaperVentureService.addVirtualFunds(user.id, amount);
+    if (result.error) {
+      toast({
+        title: "Could not add virtual funds",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Virtual funds added",
+      description:
+        "Your simulated investor wallet has been topped up for Bathra venture testing.",
+    });
+
+    const portfolioResult = await PaperVentureService.getInvestorPortfolioSummary(
+      user.id
+    );
+    if (portfolioResult.data) {
+      setPortfolioSummary(portfolioResult.data);
+    }
+  };
+
+  const handleCancelOffer = async (offerId: string) => {
+    const result = await PaperVentureService.updateOfferStatus(
+      offerId,
+      "cancelled"
+    );
+
+    if (result.error) {
+      toast({
+        title: "Could not cancel offer",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const portfolioResult = await PaperVentureService.getInvestorPortfolioSummary(
+      user.id
+    );
+    if (portfolioResult.data) {
+      setPortfolioSummary(portfolioResult.data);
+    }
+  };
 
   if (!user || !profile) return null;
 
@@ -133,6 +196,15 @@ const InvestorDashboard = () => {
               </div>
             </div>
 
+            <div className="mb-8">
+              <InvestorPortfolioSection
+                summary={portfolioSummary}
+                onAddFunds={() => setIsAddFundsOpen(true)}
+                onOpenPortfolio={() => navigate("/portfolio")}
+                onCancelOffer={handleCancelOffer}
+              />
+            </div>
+
             {/* Matchmaking Section */}
             <div className="neo-blur rounded-2xl shadow-lg p-8">
               {hasMatchedStartups ? (
@@ -189,6 +261,12 @@ const InvestorDashboard = () => {
       </section>
 
       <Footer />
+      <AddVirtualFundsDialog
+        open={isAddFundsOpen}
+        onOpenChange={setIsAddFundsOpen}
+        onSubmit={handleAddFunds}
+        currencyCode={portfolioSummary?.wallet.currency_code || "SAR"}
+      />
     </div>
   );
 };

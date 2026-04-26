@@ -559,7 +559,7 @@ const InvestorBrowseStartups = ({
                         <span className="text-sm font-medium">Valuation:</span>
                         <span className="ml-1 text-sm">
                           {startup.valuation
-                            ? `$${startup.valuation}`
+                            ? `${Number(startup.valuation).toLocaleString()} SAR`
                             : "Undisclosed"}
                         </span>
                       </div>
@@ -568,7 +568,7 @@ const InvestorBrowseStartups = ({
                         size="sm"
                         className="rounded-full w-full sm:w-auto"
                       >
-                        Details <ArrowRight className="ml-1 h-4 w-4" />
+                        Review & Invest <ArrowRight className="ml-1 h-4 w-4" />
                       </Button>
                     </div>
                   </div>

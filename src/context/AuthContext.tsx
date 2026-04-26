@@ -253,7 +253,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         accountType: data.accountType,
       };
 
-      const result = await simpleAuthService.signUp(signUpCredentials);
+      const result = await simpleAuthService.signUp(signUpCredentials, data);
 
       if (result && result.user) {
         setUser(result.user);
@@ -270,12 +270,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           updatedAt: result.user.created_at,
         };
 
+        try {
+          if (result.user.accountType === "investor") {
+            const investorData = await simpleAuthService.getInvestorProfile(
+              result.user.id
+            );
+            if (investorData) {
+              userProfile.linkedInUrl = investorData.linkedin_profile;
+              userProfile.bio = investorData.strong_candidate_reason;
+              userProfile.phoneNumber = investorData.phone;
+              userProfile.location = investorData.city;
+              userProfile.status = investorData.status;
+              userProfile.verified = investorData.verified;
+              userProfile.adminNotes = investorData.admin_notes;
+              userProfile.visibility_status = investorData.visibility_status;
+              userProfile.calendly_link = investorData.calendly_link;
+            }
+          } else if (result.user.accountType === "startup") {
+            const startupData = await simpleAuthService.getStartupProfile(
+              result.user.id
+            );
+            if (startupData) {
+              userProfile.startupId = startupData.id;
+              userProfile.position = "Founder";
+              userProfile.phoneNumber = startupData.phone;
+              userProfile.status = startupData.status;
+              userProfile.verified = startupData.verified;
+              userProfile.adminNotes = startupData.admin_notes;
+              userProfile.visibility_status = startupData.visibility_status;
+            }
+          }
+        } catch (profileError) {
+          console.error("Error loading profile after sign up:", profileError);
+        }
+
         setProfile(userProfile);
 
-        // For new users, we might need to wait for email verification
-        toast.success(
-          "Account created successfully. Please check your email to verify your account."
-        );
+        const event = new CustomEvent("authProfileChange", {
+          detail: { profile: userProfile },
+        });
+        window.dispatchEvent(event);
+
+        toast.success("Account created successfully.");
         return true;
       } else {
         toast.error("Sign up failed");

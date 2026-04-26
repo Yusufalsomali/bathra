@@ -62,6 +62,7 @@ export interface RegistrationData {
   password: string;
   name: string;
   accountType: AccountType;
+  newsletterSubscribed?: boolean;
 
   // Common fields
   phone?: string;

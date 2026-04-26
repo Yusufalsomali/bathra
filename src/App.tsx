@@ -43,6 +43,7 @@ import "./App.css";
 import InterestedInvestors from "./pages/InterestedInvestors";
 import InvestorBrowseStartups from "./components/InvestorBrowseStartups";
 import InterestedStartups from "./pages/InterestedStartups";
+import InvestorPortfolio from "./pages/InvestorPortfolio";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -234,6 +235,18 @@ const AppRoutes = () => {
               <StatusGuard>
                 <ErrorBoundary>
                   <InvestorDashboard />
+                </ErrorBoundary>
+              </StatusGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/portfolio"
+          element={
+            <ProtectedRoute requiredAccountType="investor">
+              <StatusGuard>
+                <ErrorBoundary>
+                  <InvestorPortfolio />
                 </ErrorBoundary>
               </StatusGuard>
             </ProtectedRoute>

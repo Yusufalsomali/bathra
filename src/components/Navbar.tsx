@@ -136,6 +136,10 @@ const Navbar = () => {
           path: "/investor-dashboard",
         },
         {
+          label: "Portfolio",
+          path: "/portfolio",
+        },
+        {
           label: homeTranslations.navProfile[language],
           path: "/investor-profile",
         },

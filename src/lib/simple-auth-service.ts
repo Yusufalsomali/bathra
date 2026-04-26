@@ -3,6 +3,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { AccountType } from "./account-types";
 import { RegistrationData, LoginCredentials } from "./auth-types";
 import { Investor, Startup } from "./supabase";
+import { getDemoAccountTypeByEmail } from "./demo-auth";
 
 // Simple user interface for our app
 export interface User {
@@ -30,7 +31,24 @@ export interface OTPVerificationCredentials {
 }
 
 class SimpleAuthService {
-  async signUp(credentials: SignUpCredentials): Promise<{
+  private persistSession(session: {
+    access_token?: string;
+    refresh_token?: string;
+  } | null): void {
+    if (!session) return;
+
+    if (session.access_token) {
+      localStorage.setItem("authToken", session.access_token);
+    }
+    if (session.refresh_token) {
+      localStorage.setItem("refreshToken", session.refresh_token);
+    }
+  }
+
+  async signUp(
+    credentials: SignUpCredentials,
+    registrationData?: RegistrationData
+  ): Promise<{
     user: User & { identities?: unknown[] };
     emailVerificationSent: boolean;
   }> {
@@ -54,21 +72,53 @@ class SimpleAuthService {
 
     if (isExistingUser) {
       console.log("User already exists with this email");
+      throw new Error("User already registered");
+    }
+
+    if (!data.user) {
+      throw new Error("No user returned from sign up");
+    }
+
+    let authUser = data.user;
+
+    if (data.session) {
+      this.persistSession(data.session);
+    } else {
+      const { data: signInData, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: credentials.email,
+          password: credentials.password,
+        });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      if (!signInData.user || !signInData.session) {
+        throw new Error("Failed to create an authenticated session after sign up");
+      }
+
+      authUser = signInData.user;
+      this.persistSession(signInData.session);
+    }
+
+    if (registrationData) {
+      await this.createUserProfile(authUser, registrationData);
     }
 
     // Return a user object with identities information included
     return {
       user: {
-        id: data.user?.id || "",
+        id: authUser.id,
         email: credentials.email,
         name: credentials.name,
         accountType: credentials.accountType,
-        created_at: new Date().toISOString(),
-        isProfileComplete: false,
+        created_at: authUser.created_at,
+        isProfileComplete: Boolean(registrationData),
         // Include identities to help components detect existing users
-        identities: data.user?.identities,
+        identities: authUser.identities,
       },
-      emailVerificationSent: !data.user?.email_confirmed_at,
+      emailVerificationSent: false,
     };
   }
 
@@ -99,6 +149,8 @@ class SimpleAuthService {
         localStorage.setItem("refreshToken", data.session.refresh_token);
       }
     }
+
+    await this.ensureProfileExists(data.user);
 
     return this.mapSupabaseUserToUser(data.user);
   }
@@ -240,6 +292,96 @@ class SimpleAuthService {
     return data;
   }
 
+  private async ensureProfileExists(user: SupabaseUser): Promise<void> {
+    const accountType =
+      (user.user_metadata?.account_type as AccountType | undefined) ||
+      getDemoAccountTypeByEmail(user.email);
+
+    const { data: adminData, error: adminError } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (adminError) throw adminError;
+    if (adminData) return;
+
+    const fallbackName =
+      user.user_metadata?.name || user.email?.split("@")[0] || "Demo User";
+
+    if (accountType === "investor") {
+      const { data: investorData, error: investorError } = await supabase
+        .from("investors")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (investorError) throw investorError;
+      if (investorData) return;
+
+      const investorProfile: Partial<Investor> = {
+        id: user.id,
+        email: user.email || "",
+        name: fallbackName,
+        phone: "",
+        role: "",
+        country: "",
+        city: "",
+        average_ticket_size: "",
+        newsletter_subscribed: false,
+        verified: false,
+        status: "pending",
+      };
+
+      const { error } = await supabase
+        .from("investors")
+        .upsert(investorProfile, { onConflict: "id" });
+
+      if (error) throw error;
+      return;
+    }
+
+    if (accountType === "startup") {
+      const { data: startupData, error: startupError } = await supabase
+        .from("startups")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (startupError) throw startupError;
+      if (startupData) return;
+
+      const startupName =
+        user.user_metadata?.startup_name || `${fallbackName} Demo Startup`;
+
+      const startupProfile: Partial<Startup> = {
+        id: user.id,
+        email: user.email || "",
+        name: fallbackName,
+        founder_info: fallbackName,
+        phone: "",
+        startup_name: startupName,
+        industry: "",
+        social_media_accounts: JSON.stringify([]),
+        problem_solving: "Demo startup profile created automatically for testing.",
+        solution: "Use this seeded startup account to test the Bathra demo flow.",
+        uniqueness: "Seeded demo account with an auto-recovered profile row.",
+        additional_files: JSON.stringify([]),
+        additional_video_url: "",
+        co_founders: JSON.stringify([]),
+        newsletter_subscribed: false,
+        verified: false,
+        status: "pending",
+      };
+
+      const { error } = await supabase
+        .from("startups")
+        .upsert(startupProfile, { onConflict: "id" });
+
+      if (error) throw error;
+    }
+  }
+
   private async createUserProfile(
     user: SupabaseUser,
     registrationData: RegistrationData
@@ -271,11 +413,14 @@ class SimpleAuthService {
         secured_lead_investor: registrationData.hasSecuredLeadInvestor,
         participated_as_advisor: registrationData.hasBeenStartupAdvisor,
         strong_candidate_reason: registrationData.whyStrongCandidate,
+        newsletter_subscribed: registrationData.newsletterSubscribed ?? false,
         verified: false,
         status: "pending",
       };
 
-      const { error } = await supabase.from("investors").insert(investorData);
+      const { error } = await supabase
+        .from("investors")
+        .upsert(investorData, { onConflict: "id" });
 
       if (error) throw error;
     } else if (accountType === "startup") {
@@ -297,6 +442,7 @@ class SimpleAuthService {
         problem_solving: registrationData.problemSolving,
         solution: registrationData.solutionDescription,
         uniqueness: registrationData.uniqueValueProposition,
+        current_financial_year_revenue: registrationData.currentRevenue,
         previous_financial_year_revenue: registrationData.currentRevenue,
         has_received_funding: registrationData.hasReceivedFunding,
         monthly_burn_rate: registrationData.monthlyBurnRate,
@@ -316,6 +462,7 @@ class SimpleAuthService {
         co_founders: JSON.stringify(registrationData.coFounders || []),
         calendly_link: registrationData.calendlyLink,
         video_link: registrationData.videoLink,
+        additional_video_url: registrationData.additionalVideoUrl || "",
         team_size: registrationData.teamSize,
         achievements: registrationData.achievements,
         risks: registrationData.risksAndMitigation,
@@ -330,11 +477,14 @@ class SimpleAuthService {
         additional_files: JSON.stringify(
           registrationData.additionalFiles || []
         ),
+        newsletter_subscribed: registrationData.newsletterSubscribed ?? false,
         verified: false,
         status: "pending",
       };
 
-      const { error } = await supabase.from("startups").insert(startupData);
+      const { error } = await supabase
+        .from("startups")
+        .upsert(startupData, { onConflict: "id" });
 
       if (error) throw error;
     }

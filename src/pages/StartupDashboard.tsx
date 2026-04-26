@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
+import StartupPaperInvestmentHub from "@/components/paper-venture/StartupPaperInvestmentHub";
 
 const StartupDashboard = () => {
   const { user, profile } = useAuth();
@@ -199,6 +200,10 @@ const StartupDashboard = () => {
                 // Show MatchmakingOrb for startups registered less than 7 days
                 <MatchmakingOrb userType="startup" />
               )}
+            </div>
+
+            <div className="mt-8">
+              <StartupPaperInvestmentHub />
             </div>
           </motion.div>
         </div>

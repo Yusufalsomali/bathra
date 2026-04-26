@@ -10,6 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
 import UserTypeSelectionModal from "@/components/auth/UserTypeSelectionModal";
 import { signupTranslations } from "@/utils/language";
+import { demoAccounts, hasConfiguredDemoAccounts } from "@/lib/demo-auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -99,6 +100,15 @@ const Login = () => {
     }
   };
 
+  const useDemoAccount = (email: string, password: string) => {
+    form.setValue("email", email, { shouldDirty: true, shouldValidate: true });
+    form.setValue("password", password, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setLoginError("");
+  };
+
   const handleForgotPassword = async () => {
     if (!forgotPasswordEmail) {
       return;
@@ -142,6 +152,50 @@ const Login = () => {
                 <CardDescription>{t("signInDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
+                {hasConfiguredDemoAccounts && (
+                  <Alert className="mb-4">
+                    <AlertDescription className="space-y-3">
+                      <div className="font-medium">
+                        Demo accounts are enabled for this environment.
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Use these seeded logins instead of creating new users
+                        when Supabase rate limits signup.
+                      </div>
+                      <div className="space-y-2">
+                        {demoAccounts.map((account) => (
+                          <div
+                            key={account.accountType}
+                            className="flex items-center justify-between gap-3 rounded-md border border-border/60 bg-background/60 p-3"
+                          >
+                            <div className="min-w-0 text-sm">
+                              <div className="font-medium capitalize">
+                                {account.accountType} demo
+                              </div>
+                              <div className="truncate text-muted-foreground">
+                                {account.email}
+                              </div>
+                              <div className="text-muted-foreground">
+                                {account.password}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() =>
+                                useDemoAccount(account.email, account.password)
+                              }
+                              disabled={isLoggingIn}
+                            >
+                              Use
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 {loginError && (
                   <Alert variant="destructive" className="mb-4">
                     <AlertDescription>{loginError}</AlertDescription>
@@ -230,6 +284,12 @@ const Login = () => {
                     {t("registerHereLink")}
                   </button>
                 </div>
+                {hasConfiguredDemoAccounts && (
+                  <div className="mt-3 text-center text-xs text-muted-foreground">
+                    Demo login is the recommended path for local QA and sales
+                    demos.
+                  </div>
+                )}
               </CardFooter>
             </Card>
           </motion.div>

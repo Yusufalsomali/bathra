@@ -16,9 +16,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader, Plus, X } from "lucide-react";
-import { useSimpleAuth } from "@/lib/simple-auth-service";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface InvestorFormData {
   // Auth fields
@@ -149,7 +149,7 @@ export default function InvestorSignupForm() {
 
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signUp } = useSimpleAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const addSocialMedia = () => {
@@ -234,65 +234,37 @@ export default function InvestorSignupForm() {
     setErrors([]);
 
     try {
-      // First, sign up with basic credentials
-      const result = await signUp({
+      const registrationData = {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        accountType: "investor",
-      });
+        accountType: "investor" as const,
+        phone: formData.phone,
+        birthday: formData.birthday,
+        company: formData.company,
+        role: formData.role,
+        country: formData.country,
+        city: formData.city,
+        preferredIndustries: formData.preferredIndustries,
+        preferredStage: formData.preferredStage,
+        averageTicketSize: formData.averageTicketSize,
+        linkedinProfile: formData.linkedinProfile,
+        otherSocialMedia: formData.otherSocialMedia,
+        calendlyLink: formData.calendlyLink,
+        howDidYouHear: formData.howDidYouHear,
+        numberOfInvestments: formData.numberOfInvestments,
+        hasSecuredLeadInvestor: formData.hasSecuredLeadInvestor,
+        hasBeenStartupAdvisor: formData.hasBeenStartupAdvisor,
+        whyStrongCandidate: formData.whyStrongCandidate,
+        newsletterSubscribed: formData.acceptNewsletter,
+      };
 
-      // Check if user already exists by examining the identities array
-      // An empty identities array indicates the user already exists
-      if (
-        result.user &&
-        result.user.id &&
-        result.emailVerificationSent &&
-        "identities" in result.user &&
-        Array.isArray(result.user.identities) &&
-        result.user.identities.length === 0
-      ) {
-        setErrors([t("accountWithThisEmailAlreadyExistsError")]);
-        setIsSubmitting(false);
-        return;
-      }
+      const success = await signUp(registrationData);
 
-      if (result.emailVerificationSent) {
-        // Store the full registration data in sessionStorage for OTP verification
-        const fullRegistrationData = {
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-          accountType: "investor" as const,
-          // Additional investor-specific data
-          phone: formData.phone,
-          birthday: formData.birthday,
-          company: formData.company,
-          role: formData.role,
-          country: formData.country,
-          city: formData.city,
-          preferredIndustries: formData.preferredIndustries,
-          preferredStage: formData.preferredStage,
-          averageTicketSize: formData.averageTicketSize,
-          linkedinProfile: formData.linkedinProfile,
-          otherSocialMedia: formData.otherSocialMedia,
-          calendlyLink: formData.calendlyLink,
-          howDidYouHear: formData.howDidYouHear,
-          numberOfInvestments: formData.numberOfInvestments,
-          hasSecuredLeadInvestor: formData.hasSecuredLeadInvestor,
-          hasBeenStartupAdvisor: formData.hasBeenStartupAdvisor,
-          whyStrongCandidate: formData.whyStrongCandidate,
-          agreeToTerms: formData.agreeToTerms,
-          newsletterSubscribed: formData.acceptNewsletter,
-        };
-
-        sessionStorage.setItem(
-          "pendingRegistration",
-          JSON.stringify(fullRegistrationData)
-        );
-
-        toast.success(t("registrationSuccessfulEmailVerificationMessage"));
-        navigate("/verify-email", { state: { email: formData.email } });
+      if (success) {
+        navigate("/pending-verification");
+      } else {
+        setErrors([t("registrationFailedPleaseTryAgainError")]);
       }
     } catch (error) {
       console.error("Registration error:", error);

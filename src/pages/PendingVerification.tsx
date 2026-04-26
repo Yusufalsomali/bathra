@@ -128,8 +128,8 @@ const PendingVerification = () => {
                       onClick={() =>
                         navigate(
                           profile.accountType === "startup"
-                            ? "/investor-dashboard"
-                            : "/startups"
+                            ? "/startup-dashboard"
+                            : "/investor-dashboard"
                         )
                       }
                       className="w-full"

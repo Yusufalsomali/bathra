@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,14 @@ import {
   File,
   Heart,
   CheckCircle,
+  Landmark,
 } from "lucide-react";
 import InfoRequestModal from "@/components/InfoRequestModal";
+import PaperInvestDialog from "@/components/paper-venture/PaperInvestDialog";
+import { useAuth } from "@/context/AuthContext";
+import { PaperVentureService } from "@/lib/paper-venture-service";
+import { toast } from "@/hooks/use-toast";
+import { PaperWalletSummary } from "@/lib/paper-venture-types";
 
 type StartupDetailProps = {
   startup: {
@@ -46,6 +52,9 @@ type StartupDetailProps = {
     financials?: string;
     startup_name?: string;
     email?: string;
+    funding_goal?: number;
+    valuation_amount?: number;
+    already_raised_amount?: number;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -67,11 +76,89 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
   isInterested = false,
 }) => {
   const [isInfoRequestModalOpen, setIsInfoRequestModalOpen] = useState(false);
+  const [isInvestDialogOpen, setIsInvestDialogOpen] = useState(false);
+  const [walletSummary, setWalletSummary] = useState<PaperWalletSummary | null>(
+    null
+  );
+  const [remainingFundingGoal, setRemainingFundingGoal] = useState<number | null>(
+    startup.funding_goal
+      ? Math.max(
+          startup.funding_goal - (startup.already_raised_amount || 0),
+          0
+        )
+      : null
+  );
+  const { user, profile } = useAuth();
 
   const handleRequestInfo = () => {
     setIsInfoRequestModalOpen(true);
   };
+
+  useEffect(() => {
+    const loadPaperContext = async () => {
+      if (!isOpen || !user?.id || profile?.accountType !== "investor") {
+        return;
+      }
+
+      const [portfolioResult, startupDashboardResult] = await Promise.all([
+        PaperVentureService.getInvestorPortfolioSummary(user.id),
+        PaperVentureService.getStartupInvestmentDashboard(startup.id),
+      ]);
+
+      if (portfolioResult.data) {
+        setWalletSummary(portfolioResult.data.wallet);
+      }
+
+      if (startupDashboardResult.data) {
+        const capTable = startupDashboardResult.data.capTable;
+        setRemainingFundingGoal(
+          capTable.funding_goal > 0
+            ? Math.max(capTable.funding_goal - capTable.total_simulated_raised, 0)
+            : null
+        );
+      }
+    };
+
+    loadPaperContext();
+  }, [isOpen, profile?.accountType, startup.id, user?.id]);
+
+  const handlePaperInvest = async (amount: number, note?: string) => {
+    if (!user?.id) return;
+
+    const result = await PaperVentureService.createInvestmentOffer({
+      investorId: user.id,
+      startupId: startup.id,
+      amount,
+      note,
+    });
+
+    if (result.error) {
+      toast({
+        title: "Offer could not be created",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Simulated investment offer submitted",
+      description:
+        "Your virtual funds are now reserved until the startup reviews this paper venture offer.",
+    });
+
+    const portfolioResult = await PaperVentureService.getInvestorPortfolioSummary(
+      user.id
+    );
+    if (portfolioResult.data) {
+      setWalletSummary(portfolioResult.data.wallet);
+    }
+    if (remainingFundingGoal !== null) {
+      setRemainingFundingGoal(Math.max(remainingFundingGoal - amount, 0));
+    }
+  };
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] sm:h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
@@ -166,6 +253,27 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                     {startup.valuation}
                   </p>
                 </div>
+              </div>
+
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                  Simulated paper venture investing only
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Bathra uses virtual money for academic/demo venture scenarios.
+                  No real payment, legal transfer, or live securities transaction
+                  takes place here.
+                </p>
+                {walletSummary && (
+                  <p className="mt-2 text-sm font-medium text-foreground">
+                    Your available simulated balance:{" "}
+                    {new Intl.NumberFormat("en-SA", {
+                      style: "currency",
+                      currency: walletSummary.currency_code || "SAR",
+                      maximumFractionDigits: 0,
+                    }).format(walletSummary.available_balance)}
+                  </p>
+                )}
               </div>
             </TabsContent>
 
@@ -309,6 +417,15 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 )}
               </Button>
             )}
+            {profile?.accountType === "investor" && (
+              <Button
+                onClick={() => setIsInvestDialogOpen(true)}
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Landmark className="h-4 w-4" />
+                Invest With Virtual Funds
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>
@@ -330,6 +447,15 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
         }}
       />
     </Dialog>
+      <PaperInvestDialog
+        open={isInvestDialogOpen}
+        onOpenChange={setIsInvestDialogOpen}
+        startup={startup}
+        availableBalance={walletSummary?.available_balance || 0}
+        remainingFundingGoal={remainingFundingGoal}
+        onConfirm={handlePaperInvest}
+      />
+    </>
   );
 };
 

@@ -1,10 +1,11 @@
 import { supabase as defaultClient } from "@/integrations/supabase/client";
 
-// Use the client from integrations directly
+// Re-export the shared Supabase client configured from Vite env vars.
 export const supabase = defaultClient;
 
-// Set isSupabaseConfigured to true since we're using a mock client
-export const isSupabaseConfigured = true;
+export const isSupabaseConfigured = Boolean(
+  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 // Define database types to use with Supabase
 export type Tables = {
@@ -269,6 +270,76 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
+  paper_wallets: {
+    investor_id: string;
+    currency_code: string;
+    starting_balance: number;
+    total_added?: number;
+    available_balance: number;
+    reserved_balance?: number;
+    invested_balance: number;
+    realized_pnl?: number;
+    created_at: string;
+    updated_at?: string;
+  };
+  paper_wallet_transactions: {
+    id: string;
+    investor_id: string;
+    type:
+      | "initial_funding"
+      | "add_funds"
+      | "investment_reserved"
+      | "investment_finalized"
+      | "investment_released";
+    amount: number;
+    description?: string;
+    metadata?: Record<string, unknown>;
+    created_at: string;
+  };
+  paper_investment_offers: {
+    id: string;
+    investor_id: string;
+    startup_id: string;
+    matchmaking_id?: string;
+    amount: number;
+    valuation_at_offer: number;
+    implied_equity_percentage: number;
+    status: "pending" | "accepted" | "rejected" | "cancelled";
+    note?: string;
+    created_at: string;
+    updated_at?: string;
+  };
+  paper_investments: {
+    id: string;
+    investor_id: string;
+    startup_id: string;
+    offer_id?: string;
+    matchmaking_id?: string;
+    amount: number;
+    valuation_at_investment?: number;
+    ownership_pct?: number;
+    instrument?:
+      | "Equity"
+      | "Convertible note"
+      | "SAFE"
+      | "Loan"
+      | "Other"
+      | "Undecided"
+      | "Not interested in funding";
+    notes?: string;
+    status: "active" | "exited" | "cancelled";
+    exit_amount?: number;
+    exited_at?: string;
+    created_at: string;
+    updated_at?: string;
+  };
+  startup_valuation_history: {
+    id: string;
+    startup_id: string;
+    valuation: number;
+    reason?: string;
+    created_at: string;
+  };
 };
 
 // Export common types for convenience
@@ -280,6 +351,11 @@ export type NewsletterCampaign = Tables["newsletter_campaigns"];
 export type UserInvite = Tables["user_invites"];
 export type InvestorStartupConnection = Tables["investor_startup_connections"];
 export type Matchmaking = Tables["matchmakings"];
+export type PaperWallet = Tables["paper_wallets"];
+export type PaperWalletTransaction = Tables["paper_wallet_transactions"];
+export type PaperInvestmentOffer = Tables["paper_investment_offers"];
+export type PaperInvestment = Tables["paper_investments"];
+export type StartupValuationHistory = Tables["startup_valuation_history"];
 
 // Define specific response types to help with TypeScript safety
 export interface SupabaseResponse<T> {
