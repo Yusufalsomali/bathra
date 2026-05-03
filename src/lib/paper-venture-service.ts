@@ -607,6 +607,69 @@ export class PaperVentureService {
     return { success: true, error: null };
   }
 
+  static async exitInvestment(
+    investmentId: string,
+    exitAmount: number
+  ): Promise<{ success: boolean; error: string | null }> {
+    const { data: investment, error: fetchError } = await supabase
+      .from("paper_investments")
+      .select("*")
+      .eq("id", investmentId)
+      .single();
+
+    if (fetchError || !investment) {
+      return { success: false, error: fetchError?.message ?? "Investment not found" };
+    }
+
+    if (investment.status !== "active") {
+      return { success: false, error: "Only active investments can be exited" };
+    }
+
+    const realizedGain = roundCurrency(exitAmount - toNumber(investment.amount));
+
+    const { error: updateError } = await supabase
+      .from("paper_investments")
+      .update({
+        status: "exited",
+        exit_amount: roundCurrency(exitAmount),
+        exited_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", investmentId);
+
+    if (updateError) return { success: false, error: updateError.message };
+
+    const { data: wallet } = await supabase
+      .from("paper_wallets")
+      .select("*")
+      .eq("investor_id", investment.investor_id)
+      .single();
+
+    if (wallet) {
+      await supabase
+        .from("paper_wallets")
+        .update({
+          invested_balance: roundCurrency(Math.max(toNumber(wallet.invested_balance) - toNumber(investment.amount), 0)),
+          available_balance: roundCurrency(toNumber(wallet.available_balance) + exitAmount),
+          realized_pnl: roundCurrency(toNumber(wallet.realized_pnl) + realizedGain),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("investor_id", investment.investor_id);
+    }
+
+    await NotificationService.createNotification({
+      user_id: investment.investor_id,
+      type: "investment_interest",
+      title: "Investment Exited",
+      content: `Your paper investment has been exited. Exit value: SAR ${exitAmount.toLocaleString()}. ${realizedGain >= 0 ? "Gain" : "Loss"}: SAR ${Math.abs(realizedGain).toLocaleString()}.`,
+      priority: "high",
+      action_url: "/investor-portfolio",
+      action_label: "View Portfolio",
+    });
+
+    return { success: true, error: null };
+  }
+
   static async getPortfolioValueTimeline(
     investorId: string
   ): Promise<{ date: string; value: number }[]> {
