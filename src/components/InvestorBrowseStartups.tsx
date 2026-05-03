@@ -34,6 +34,7 @@ import {
 } from "@/lib/startup-types";
 import { Pagination } from "@/components/ui/pagination";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
+import { supabase } from "@/lib/supabase";
 import Navbar from "./Navbar";
 
 interface InvestorBrowseStartupsProps {
@@ -53,6 +54,34 @@ const formatCurrency = (value?: string | number) => {
   }
 
   return `SAR ${numericValue.toLocaleString()}`;
+};
+
+const calcCompatibilityScore = (
+  startup: StartupBasicInfo,
+  investor: { preferred_industries?: string; preferred_company_stage?: string } | null
+): number => {
+  if (!investor) return 0;
+  let score = 20;
+  const preferredIndustries = (investor.preferred_industries ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (
+    preferredIndustries.length === 0 ||
+    preferredIndustries.some((ind) => startup.industry?.toLowerCase().includes(ind))
+  ) {
+    score += 40;
+  }
+  if (!investor.preferred_company_stage || investor.preferred_company_stage === startup.stage) {
+    score += 40;
+  }
+  return score;
+};
+
+const getScoreColor = (score: number): string => {
+  if (score >= 80) return "bg-green-100 text-green-800 border-green-200";
+  if (score >= 60) return "bg-yellow-100 text-yellow-800 border-yellow-200";
+  return "bg-gray-100 text-gray-600 border-gray-200";
 };
 
 const getStartupInitials = (name: string) =>
@@ -96,6 +125,7 @@ const InvestorBrowseStartups = ({
   const [savedStartupIds, setSavedStartupIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
   const [interestedStartups, setInterestedStartups] = useState<string[]>([]);
+  const [investorProfile, setInvestorProfile] = useState<{ preferred_industries?: string; preferred_company_stage?: string } | null>(null);
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -114,6 +144,12 @@ const InvestorBrowseStartups = ({
       InvestorStartupConnectionService.getSavedStartupIds(user.id).then((ids) =>
         setSavedStartupIds(new Set(ids))
       );
+      supabase
+        .from("investors")
+        .select("preferred_industries, preferred_company_stage")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => setInvestorProfile(data));
     }
   }, [isDashboard, maxStartups, user?.id]);
 
@@ -514,12 +550,22 @@ const InvestorBrowseStartups = ({
                           <Sparkles className="mr-1 h-3.5 w-3.5" />
                           {startup.verified ? "Active Opportunity" : "New"}
                         </Badge>
-                        {interestedStartups.includes(startup.id) && (
-                          <Badge className="border-emerald-300/20 bg-emerald-400/15 text-emerald-50 hover:bg-emerald-400/15">
-                            <Star className="mr-1 h-3.5 w-3.5" />
-                            Interested
-                          </Badge>
-                        )}
+                        <div className="flex gap-1.5">
+                          {interestedStartups.includes(startup.id) && (
+                            <Badge className="border-emerald-300/20 bg-emerald-400/15 text-emerald-50 hover:bg-emerald-400/15">
+                              <Star className="mr-1 h-3.5 w-3.5" />
+                              Interested
+                            </Badge>
+                          )}
+                          {investorProfile && (() => {
+                            const score = calcCompatibilityScore(startup, investorProfile);
+                            return (
+                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${getScoreColor(score)}`}>
+                                {score}% match
+                              </span>
+                            );
+                          })()}
+                        </div>
                       </div>
 
                       <div className="flex items-end justify-between gap-3">
