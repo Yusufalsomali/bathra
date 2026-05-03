@@ -22,6 +22,7 @@ import {
   Heart,
   CheckCircle,
   Landmark,
+  Calendar,
 } from "lucide-react";
 import InfoRequestModal from "@/components/InfoRequestModal";
 import PaperInvestDialog from "@/components/paper-venture/PaperInvestDialog";
@@ -344,6 +345,19 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                     </a>
                   )}
                 </p>
+                {startup.calendly_link && (
+                  <div className="mt-3">
+                    <a
+                      href={startup.calendly_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Schedule a Meeting
+                    </a>
+                  </div>
+                )}
               </div>
             </TabsContent>
 

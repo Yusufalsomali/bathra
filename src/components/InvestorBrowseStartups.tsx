@@ -10,6 +10,7 @@ import {
   Sparkles,
   Landmark,
   TrendingUp,
+  Calendar,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -689,7 +690,7 @@ const InvestorBrowseStartups = ({
                       </div>
                     </div>
 
-                    <div className="mt-5">
+                    <div className="mt-5 space-y-2">
                       <Button
                         onClick={() => handleStartupClick(startup)}
                         size="lg"
@@ -698,6 +699,18 @@ const InvestorBrowseStartups = ({
                         Review & Invest
                         <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                       </Button>
+                      {startup.calendly_link && (
+                        <a
+                          href={startup.calendly_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex w-full items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors py-1"
+                        >
+                          <Calendar className="h-3.5 w-3.5" />
+                          Schedule a Meeting
+                        </a>
+                      )}
                     </div>
                   </div>
                 </motion.div>
