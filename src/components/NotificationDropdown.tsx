@@ -71,7 +71,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     archiveNotification,
   } = useNotifications(isApproved && user?.id ? user.id : null, {
     limit: 5,
-    autoRefresh: false, // Disable autoRefresh to prevent re-rendering issues
+    autoRefresh: true,
   });
 
   // State for all notifications modal
