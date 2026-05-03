@@ -105,7 +105,10 @@ const StartupProfile = () => {
 
   const handleValuationUpdate = async () => {
     const amount = parseFloat(valuationInput.replace(/,/g, ""));
-    if (!amount || amount <= 0 || !user?.id) return;
+    if (!amount || amount <= 0 || !user?.id) {
+      toast({ title: "Invalid input", description: "Please enter a positive valuation amount.", variant: "destructive" });
+      return;
+    }
     setIsUpdatingValuation(true);
     const { error } = await PaperVentureService.updateStartupValuation({
       startupId: user.id,
@@ -119,8 +122,8 @@ const StartupProfile = () => {
       toast({ title: "Valuation updated", description: `Pre-money valuation set to SAR ${amount.toLocaleString()}` });
       setValuationInput("");
       setValuationReason("");
-      const { data } = await supabase.from("startups").select("*").eq("id", user.id).single();
-      if (data) setStartupDetails(data);
+      const { data: refreshData } = await supabase.from("startups").select("*").eq("id", user.id).single();
+      if (refreshData) setStartupDetails(refreshData);
     }
   };
 
