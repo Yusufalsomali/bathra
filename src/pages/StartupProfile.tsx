@@ -19,12 +19,23 @@ import {
   Users,
   Key,
   MoreVertical,
+  TrendingUp,
 } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import ChangePasswordModal from "@/components/auth/ChangePasswordModal";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
+import { PaperVentureService } from "@/lib/paper-venture-service";
+import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface SocialMediaAccount {
   platform: string;
@@ -47,12 +58,16 @@ interface AdditionalFile {
 const StartupProfile = () => {
   const { user, profile } = useAuth();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
+  const [valuationInput, setValuationInput] = useState("");
+  const [valuationReason, setValuationReason] = useState("");
+  const [isUpdatingValuation, setIsUpdatingValuation] = useState(false);
 
   useEffect(() => {
     const fetchStartupDetails = async () => {
@@ -86,6 +101,27 @@ const StartupProfile = () => {
 
   const handleProfileUpdate = (updatedStartup: Startup) => {
     setStartupDetails(updatedStartup);
+  };
+
+  const handleValuationUpdate = async () => {
+    const amount = parseFloat(valuationInput.replace(/,/g, ""));
+    if (!amount || amount <= 0 || !user?.id) return;
+    setIsUpdatingValuation(true);
+    const { error } = await PaperVentureService.updateStartupValuation({
+      startupId: user.id,
+      valuation: amount,
+      reason: valuationReason || "Self-reported valuation update",
+    });
+    setIsUpdatingValuation(false);
+    if (error) {
+      toast({ title: "Error", description: error, variant: "destructive" });
+    } else {
+      toast({ title: "Valuation updated", description: `Pre-money valuation set to SAR ${amount.toLocaleString()}` });
+      setValuationInput("");
+      setValuationReason("");
+      const { data } = await supabase.from("startups").select("*").eq("id", user.id).single();
+      if (data) setStartupDetails(data);
+    }
   };
 
   const handleViewPitchDeck = async (pitchDeckUrl: string) => {
@@ -709,6 +745,48 @@ const StartupProfile = () => {
                 </div>
               </div>
             </div>
+
+            {/* Valuation Update Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Update Pre-Money Valuation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {startupDetails?.pre_money_valuation && (
+                  <p className="text-sm text-muted-foreground">
+                    Current valuation:{" "}
+                    <span className="font-semibold text-foreground">
+                      SAR {Number(startupDetails.pre_money_valuation).toLocaleString()}
+                    </span>
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="New valuation in SAR (e.g. 10000000)"
+                    value={valuationInput}
+                    onChange={(e) => setValuationInput(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+                <Textarea
+                  placeholder="Reason for update (optional)"
+                  value={valuationReason}
+                  onChange={(e) => setValuationReason(e.target.value)}
+                  rows={2}
+                />
+                <Button
+                  onClick={handleValuationUpdate}
+                  disabled={!valuationInput || isUpdatingValuation}
+                  className="w-full"
+                >
+                  {isUpdatingValuation ? "Updating…" : "Update Valuation"}
+                </Button>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </section>
