@@ -35,6 +35,8 @@ const DashboardStats = () => {
     totalInfoRequests: 0,
     totalArticles: 0,
     totalNewsletterCampaigns: 0,
+    totalActivePaperInvestments: 0,
+    totalPendingOffers: 0,
   });
   const [recentActivity, setRecentActivity] = useState<
     Array<{
@@ -158,6 +160,22 @@ const DashboardStats = () => {
       icon: Flag,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
+    },
+    {
+      title: "Active Paper Investments",
+      value: stats.totalActivePaperInvestments.toString(),
+      change: null,
+      icon: TrendingUp,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    {
+      title: "Pending Offers",
+      value: stats.totalPendingOffers.toString(),
+      change: null,
+      icon: BarChart3,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
     },
   ];
 

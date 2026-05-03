@@ -666,6 +666,8 @@ class AdminService {
       totalInfoRequests: number;
       totalArticles: number;
       totalNewsletterCampaigns: number;
+      totalActivePaperInvestments: number;
+      totalPendingOffers: number;
     };
     error: string | null;
   }> {
@@ -745,6 +747,11 @@ class AdminService {
 
       const totalNewsletterCampaigns = campaigns?.length || 0;
 
+      const [activePaperInvestmentsResult, pendingOffersResult] = await Promise.all([
+        supabase.from("paper_investments").select("id", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("paper_investment_offers").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      ]);
+
       const stats = {
         totalStartups: startups.filter((startup) => startup.verified).length,
         totalInvestors: investors.filter((investor) => investor.verified)
@@ -763,6 +770,8 @@ class AdminService {
         totalInfoRequests,
         totalArticles,
         totalNewsletterCampaigns,
+        totalActivePaperInvestments: activePaperInvestmentsResult.count ?? 0,
+        totalPendingOffers: pendingOffersResult.count ?? 0,
       };
 
       return { data: stats, error: null };
@@ -779,6 +788,8 @@ class AdminService {
           totalInfoRequests: 0,
           totalArticles: 0,
           totalNewsletterCampaigns: 0,
+          totalActivePaperInvestments: 0,
+          totalPendingOffers: 0,
         },
         error: (error as Error).message,
       };
