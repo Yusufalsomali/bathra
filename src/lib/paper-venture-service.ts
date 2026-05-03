@@ -607,6 +607,59 @@ export class PaperVentureService {
     return { success: true, error: null };
   }
 
+  static async getPortfolioValueTimeline(
+    investorId: string
+  ): Promise<{ date: string; value: number }[]> {
+    const { data: investments } = await supabase
+      .from("paper_investments")
+      .select("startup_id, ownership_pct, amount, created_at")
+      .eq("investor_id", investorId)
+      .eq("status", "active");
+
+    if (!investments || investments.length === 0) return [];
+
+    const startupIds = investments.map((i) => i.startup_id);
+
+    const { data: history } = await supabase
+      .from("startup_valuation_history")
+      .select("startup_id, valuation, created_at")
+      .in("startup_id", startupIds)
+      .order("created_at", { ascending: true });
+
+    if (!history || history.length === 0) {
+      const totalInvested = investments.reduce((sum, i) => sum + toNumber(i.amount), 0);
+      return [{ date: new Date().toISOString().split("T")[0], value: roundCurrency(totalInvested) }];
+    }
+
+    const latestValuations = new Map<string, number>();
+    for (const inv of investments) {
+      latestValuations.set(
+        inv.startup_id,
+        toNumber(inv.amount) / (toNumber(inv.ownership_pct) / 100 || 1)
+      );
+    }
+
+    const timeline: { date: string; value: number }[] = [];
+    let lastDate = "";
+
+    for (const entry of history) {
+      latestValuations.set(entry.startup_id, toNumber(entry.valuation));
+      const date = entry.created_at.split("T")[0];
+      const totalValue = investments.reduce((sum, inv) => {
+        const val = latestValuations.get(inv.startup_id) ?? 0;
+        return sum + roundCurrency((toNumber(inv.ownership_pct) / 100) * val);
+      }, 0);
+      if (date === lastDate) {
+        timeline[timeline.length - 1].value = roundCurrency(totalValue);
+      } else {
+        timeline.push({ date, value: roundCurrency(totalValue) });
+        lastDate = date;
+      }
+    }
+
+    return timeline;
+  }
+
   static async getFundingProgressMap(
     startupIds: string[]
   ): Promise<Map<string, number>> {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Activity,
   ArrowUpLeft,
@@ -10,9 +11,11 @@ import {
   PlusCircle,
   ShieldAlert,
   Sparkles,
+  TrendingUp,
   Wallet,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { PaperVentureService } from "@/lib/paper-venture-service";
 import {
   Card,
   CardContent,
@@ -29,7 +32,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Cell, Pie, PieChart } from "recharts";
+import {
+  Cell,
+  CartesianGrid,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   Table,
   TableBody,
@@ -93,6 +105,13 @@ const InvestorPortfolioSection = ({
   onCancelOffer,
 }: InvestorPortfolioSectionProps) => {
   const { language, isRTL } = useLanguage();
+  const [timeline, setTimeline] = useState<{ date: string; value: number }[]>([]);
+
+  useEffect(() => {
+    if (summary?.wallet?.investor_id) {
+      PaperVentureService.getPortfolioValueTimeline(summary.wallet.investor_id).then(setTimeline);
+    }
+  }, [summary?.wallet?.investor_id]);
 
   if (!summary) {
     return null;
@@ -693,6 +712,38 @@ const InvestorPortfolioSection = ({
             )}
           </CardContent>
         </Card>
+
+        {timeline.length > 1 && (
+          <Card className="border-white/10 shadow-lg">
+            <CardHeader className="border-b bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <TrendingUp className="h-4 w-4" />
+                Portfolio Value Over Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <ChartContainer
+                config={{ value: { label: "Portfolio Value (SAR)", color: "hsl(var(--primary))" } }}
+                className="h-52"
+              >
+                <LineChart data={timeline}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 5 }}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-white/10 shadow-lg">
           <CardHeader className="border-b bg-muted/20">
