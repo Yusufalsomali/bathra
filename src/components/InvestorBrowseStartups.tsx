@@ -93,7 +93,8 @@ const InvestorBrowseStartups = ({
   const [selectedStartup, setSelectedStartup] =
     useState<StartupBasicInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [savedStartups, setSavedStartups] = useState<string[]>([]);
+  const [savedStartupIds, setSavedStartupIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [interestedStartups, setInterestedStartups] = useState<string[]>([]);
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
@@ -110,6 +111,9 @@ const InvestorBrowseStartups = ({
     }
     if (user?.id) {
       loadInterestedStartups();
+      InvestorStartupConnectionService.getSavedStartupIds(user.id).then((ids) =>
+        setSavedStartupIds(new Set(ids))
+      );
     }
   }, [isDashboard, maxStartups, user?.id]);
 
@@ -242,24 +246,33 @@ const InvestorBrowseStartups = ({
     setCurrentPage(page);
   };
 
-  const handleSaveStartup = () => {
-    if (!selectedStartup) return;
-
-    if (savedStartups.includes(selectedStartup.id)) {
-      setSavedStartups((prev) =>
-        prev.filter((id) => id !== selectedStartup.id)
-      );
-      toast({
-        title: "Removed from saved",
-        description: `${selectedStartup.name} has been removed from your saved startups`,
-      });
-    } else {
-      setSavedStartups((prev) => [...prev, selectedStartup.id]);
-      toast({
-        title: "Startup saved",
-        description: `${selectedStartup.name} has been added to your saved startups`,
-      });
+  const handleSaveStartup = async () => {
+    if (!selectedStartup || !user?.id || !profile) return;
+    setSavingId(selectedStartup.id);
+    const { saved, error } = await InvestorStartupConnectionService.toggleSaved(
+      user.id,
+      selectedStartup.id,
+      profile.name || "Unknown Investor",
+      profile.email || user.email || "",
+      selectedStartup.startup_name || selectedStartup.name,
+      selectedStartup.email
+    );
+    setSavingId(null);
+    if (error) {
+      toast({ title: "Error", description: error, variant: "destructive" });
+      return;
     }
+    setSavedStartupIds((prev) => {
+      const next = new Set(prev);
+      saved ? next.add(selectedStartup.id) : next.delete(selectedStartup.id);
+      return next;
+    });
+    toast({
+      title: saved ? "Startup saved" : "Removed from saved",
+      description: saved
+        ? `${selectedStartup.startup_name || selectedStartup.name} has been added to your saved startups`
+        : `${selectedStartup.startup_name || selectedStartup.name} has been removed from your saved startups`,
+    });
   };
 
   const handleRequestInfo = () => {
@@ -672,7 +685,7 @@ const InvestorBrowseStartups = ({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveStartup}
-          isSaved={savedStartups.includes(selectedStartup.id)}
+          isSaved={savedStartupIds.has(selectedStartup.id)}
           onRequestInfo={handleRequestInfo}
           onInterested={handleInterested}
           isInterested={interestedStartups.includes(selectedStartup.id)}

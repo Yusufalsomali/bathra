@@ -4,7 +4,7 @@ import { NotificationService } from "./notification-service";
 export interface CreateConnectionData {
   investor_id: string;
   startup_id: string;
-  connection_type: "interested" | "info_request";
+  connection_type: "interested" | "info_request" | "saved";
   investor_name: string;
   investor_email: string;
   investor_calendly_link?: string;
@@ -16,7 +16,7 @@ export interface CreateConnectionData {
 export interface ConnectionFilters {
   investor_id?: string;
   startup_id?: string;
-  connection_type?: "interested" | "info_request";
+  connection_type?: "interested" | "info_request" | "saved";
   status?: "active" | "archived";
 }
 
@@ -86,7 +86,7 @@ export class InvestorStartupConnectionService {
   static async getConnection(
     investor_id: string,
     startup_id: string,
-    connection_type: "interested" | "info_request"
+    connection_type: "interested" | "info_request" | "saved"
   ): Promise<{ data: InvestorStartupConnection | null; error: string | null }> {
     try {
       const { data, error } = await supabase
@@ -309,5 +309,43 @@ export class InvestorStartupConnectionService {
     } catch (error) {
       console.error("Error notifying admin of info request:", error);
     }
+  }
+
+  static async toggleSaved(
+    investorId: string,
+    startupId: string,
+    investorName: string,
+    investorEmail: string,
+    startupName: string,
+    startupEmail: string
+  ): Promise<{ saved: boolean; error: string | null }> {
+    const existing = await this.getConnection(investorId, startupId, "saved");
+    if (existing.data) {
+      const { error } = await supabase
+        .from("investor_startup_connections")
+        .update({ status: "archived" })
+        .eq("id", existing.data.id);
+      return { saved: false, error: error?.message ?? null };
+    }
+    const { error } = await this.createConnection({
+      investor_id: investorId,
+      startup_id: startupId,
+      connection_type: "saved",
+      investor_name: investorName,
+      investor_email: investorEmail,
+      startup_name: startupName,
+      startup_email: startupEmail,
+    });
+    return { saved: true, error };
+  }
+
+  static async getSavedStartupIds(investorId: string): Promise<string[]> {
+    const { data } = await supabase
+      .from("investor_startup_connections")
+      .select("startup_id")
+      .eq("investor_id", investorId)
+      .eq("connection_type", "saved")
+      .eq("status", "active");
+    return (data ?? []).map((r) => r.startup_id);
   }
 }

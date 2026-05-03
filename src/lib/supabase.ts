@@ -57,7 +57,7 @@ export type Tables = {
     id: string;
     investor_id: string;
     startup_id: string;
-    connection_type: "interested" | "info_request";
+    connection_type: "interested" | "info_request" | "saved";
     investor_name: string;
     investor_email: string;
     investor_calendly_link?: string;
