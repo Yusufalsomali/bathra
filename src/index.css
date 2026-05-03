@@ -179,10 +179,6 @@ a.underline,
   text-align: right;
 }
 
-[dir="rtl"] .flex:not(.flex-col):not(.flex-col-reverse) {
-  flex-direction: row-reverse;
-}
-
 [dir="rtl"] .space-x-1 > * + * {
   margin-left: 0;
   margin-right: 0.25rem;

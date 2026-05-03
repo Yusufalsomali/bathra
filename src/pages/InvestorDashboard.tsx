@@ -10,13 +10,14 @@ import MatchmakingOrb from "@/components/MatchmakingOrb";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
-import { MatchmakingService } from "@/lib/matchmaking-service";
 import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
 import { PaperVentureService } from "@/lib/paper-venture-service";
 import { InvestorPortfolioSummary } from "@/lib/paper-venture-types";
 import InvestorPortfolioSection from "@/components/paper-venture/InvestorPortfolioSection";
 import AddVirtualFundsDialog from "@/components/paper-venture/AddVirtualFundsDialog";
 import { toast } from "@/hooks/use-toast";
+import { StartupService } from "@/lib/startup-service";
+import { PaginatedStartups } from "@/lib/startup-types";
 
 const InvestorDashboard = () => {
   const { user, profile } = useAuth();
@@ -24,8 +25,7 @@ const InvestorDashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
-  const [hasMatchedStartups, setHasMatchedStartups] = useState(false);
-  const [matchedStartupsCount, setMatchedStartupsCount] = useState(0);
+  const [availableStartupsCount, setAvailableStartupsCount] = useState(0);
   const [portfolioSummary, setPortfolioSummary] =
     useState<InvestorPortfolioSummary | null>(null);
   const [isAddFundsOpen, setIsAddFundsOpen] = useState(false);
@@ -36,10 +36,10 @@ const InvestorDashboard = () => {
         if (!user?.id) return;
 
         // Fetch investor details and matchmakings in parallel
-        const [investorResult, matchmakingsResult, portfolioResult] =
+        const [investorResult, startupsResult, portfolioResult] =
           await Promise.all([
           supabase.from("investors").select("*").eq("id", user.id).single(),
-          MatchmakingService.getMatchmakingsByInvestor(user.id),
+          StartupService.getVettedStartups({ limit: 1, offset: 0 }),
           PaperVentureService.getInvestorPortfolioSummary(user.id),
         ]);
 
@@ -51,29 +51,9 @@ const InvestorDashboard = () => {
         if (portfolioResult.data) {
           setPortfolioSummary(portfolioResult.data);
         }
-
-        // Check for active matchmakings
-        if (matchmakingsResult.data) {
-          // Get current date and date from 7 days ago
-          const currentDate = new Date();
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(currentDate.getDate() - 7);
-
-          // Filter out archived matchmakings and those older than 7 days
-          const activeMatchmakings = matchmakingsResult.data.filter((m) => {
-            // Check if not archived
-            if (m.is_archived) return false;
-
-            // Check if created within last 7 days
-            const createdDate = new Date(m.created_at);
-            return createdDate >= sevenDaysAgo;
-          });
-
-          const uniqueStartupIds = [
-            ...new Set(activeMatchmakings.map((m) => m.startup_id)),
-          ];
-          setHasMatchedStartups(uniqueStartupIds.length > 0);
-          setMatchedStartupsCount(uniqueStartupIds.length);
+        if (startupsResult.data) {
+          const paginatedResult = startupsResult.data as PaginatedStartups;
+          setAvailableStartupsCount(paginatedResult.total || 0);
         }
       } catch (error) {
         console.error("Error fetching investor data:", error);
@@ -207,21 +187,21 @@ const InvestorDashboard = () => {
 
             {/* Matchmaking Section */}
             <div className="neo-blur rounded-2xl shadow-lg p-8">
-              {hasMatchedStartups ? (
+              {availableStartupsCount > 0 ? (
                 <div className="space-y-6">
-                  {/* Matched Startups Header */}
+                  {/* Startup Discovery Header */}
                   <div className="text-center mb-8">
                     <h2 className="text-2xl font-bold text-gradient mb-4">
-                      Your Matched Startups
+                      Browse Active Startups
                     </h2>
                     <p className="text-muted-foreground text-lg">
-                      {matchedStartupsCount} startup
-                      {matchedStartupsCount !== 1 ? "s" : ""} carefully selected
-                      for you
+                      {availableStartupsCount} approved startup
+                      {availableStartupsCount !== 1 ? "s" : ""} available for
+                      paper venture discovery
                     </p>
                   </div>
 
-                  {/* Preview of Matched Startups */}
+                  {/* Preview of Startups */}
                   <div className="mb-6">
                     <InvestorBrowseStartups
                       isDashboard={true}
@@ -236,7 +216,7 @@ const InvestorDashboard = () => {
                       size="lg"
                       className="gap-2"
                     >
-                      View All Matched Startups
+                      View All Startups
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
@@ -245,11 +225,12 @@ const InvestorDashboard = () => {
                 <div>
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-gradient mb-4">
-                      Finding Your Perfect Matches
+                      Startup Discovery Is Opening Soon
                     </h2>
                     <p className="text-muted-foreground text-lg">
-                      Our team is working to find startups that align with your
-                      investment preferences
+                      No approved startups are available yet. Once startups are
+                      approved, they will appear here for direct paper venture
+                      investing.
                     </p>
                   </div>
                   <MatchmakingOrb userType="investor" />

@@ -26,6 +26,7 @@ export interface PaperWalletSummary {
   total_accepted_investments: number;
   current_gain_loss: number;
   remaining_cash: number;
+  active_deals_count: number;
 }
 
 export interface PaperPortfolioPosition {
@@ -49,6 +50,25 @@ export interface PaperSectorBreakdown {
   amount: number;
   currentValue: number;
   count: number;
+  pendingAmount: number;
+  acceptedAmount: number;
+  exposureType: "pending" | "accepted" | "mixed";
+}
+
+export interface PaperPortfolioActivityItem {
+  id: string;
+  type:
+    | "add_funds"
+    | "offer_submitted"
+    | "offer_accepted"
+    | "offer_rejected"
+    | "offer_cancelled"
+    | "valuation_changed";
+  title: string;
+  description: string;
+  amount?: number;
+  created_at: string;
+  status?: string;
 }
 
 export interface InvestorPortfolioSummary {
@@ -56,6 +76,7 @@ export interface InvestorPortfolioSummary {
   positions: PaperPortfolioPosition[];
   sectorBreakdown: PaperSectorBreakdown[];
   pendingOffers: PaperInvestmentOfferView[];
+  recentActivity: PaperPortfolioActivityItem[];
 }
 
 export interface CreatePaperInvestmentOfferInput {

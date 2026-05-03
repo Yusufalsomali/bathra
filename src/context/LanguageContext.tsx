@@ -71,6 +71,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
   // Listen for auth context changes to enforce admin language rules
   useEffect(() => {
+    const dir = language === "Arabic" ? "rtl" : "ltr";
+    document.documentElement.dir = dir;
+    document.documentElement.lang = language === "Arabic" ? "ar" : "en";
+    document.body.dir = dir;
+    document.body.classList.toggle("font-arabic", language === "Arabic");
+  }, [language]);
+
+  useEffect(() => {
     // We'll listen for auth changes through a custom event to avoid circular imports
     const handleAuthChange = (event: CustomEvent) => {
       const { profile } = event.detail;

@@ -10,6 +10,7 @@ import {
   CreatePaperInvestmentOfferInput,
   InvestorPaperProfilePreview,
   InvestorPortfolioSummary,
+  PaperPortfolioActivityItem,
   PaperInvestmentOfferStatus,
   PaperInvestmentOfferView,
   PaperPortfolioPosition,
@@ -287,7 +288,7 @@ export class PaperVentureService {
     if (!data || !hasActiveMatchmaking(data)) {
       return {
         id: null,
-        error: "This startup is not currently available in your matched venture flow",
+        error: null,
       };
     }
 
@@ -317,10 +318,10 @@ export class PaperVentureService {
         error: fundingContextResult.error || "Startup details unavailable",
       };
     }
-    if (!matchmakingResult.id) {
+    if (matchmakingResult.error) {
       return {
         success: false,
-        error: matchmakingResult.error || "No active matchmaking found",
+        error: matchmakingResult.error,
       };
     }
 
@@ -599,6 +600,9 @@ export class PaperVentureService {
       total_accepted_investments: roundCurrency(totalAccepted),
       current_gain_loss: roundCurrency(gainLoss),
       remaining_cash: wallet.available_balance,
+      active_deals_count:
+        positions.length +
+        pendingOffers.filter((offer) => offer.status === "pending").length,
     };
   }
 
@@ -660,6 +664,20 @@ export class PaperVentureService {
         ...new Set([...(offers || []).map((offer) => offer.startup_id), ...(investments || []).map((investment) => investment.startup_id)]),
       ];
       const startupMap = await this.getStartupsMap(startupIds);
+      const { data: walletTransactions, error: walletTransactionsError } =
+        await supabase
+          .from("paper_wallet_transactions")
+          .select("*")
+          .eq("investor_id", investorId)
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+      if (
+        walletTransactionsError &&
+        !isRelationMissingError(walletTransactionsError)
+      ) {
+        return { data: null, error: walletTransactionsError.message };
+      }
 
       const positions: PaperPortfolioPosition[] = (investments || []).map(
         (investment) => {
@@ -721,19 +739,156 @@ export class PaperVentureService {
           existing.amount += position.amount_invested;
           existing.currentValue += position.current_paper_value;
           existing.count += 1;
+          existing.acceptedAmount += position.amount_invested;
+          existing.exposureType =
+            existing.pendingAmount > 0 ? "mixed" : "accepted";
         } else {
           sectorMap.set(position.sector, {
             sector: position.sector,
             amount: position.amount_invested,
             currentValue: position.current_paper_value,
             count: 1,
+            pendingAmount: 0,
+            acceptedAmount: position.amount_invested,
+            exposureType: "accepted",
           });
         }
       });
 
+      pendingOffers
+        .filter((offer) => offer.status === "pending")
+        .forEach((offer) => {
+          const existing = sectorMap.get(offer.startup_sector);
+          if (existing) {
+            existing.amount += offer.offered_amount;
+            existing.pendingAmount += offer.offered_amount;
+            existing.exposureType =
+              existing.acceptedAmount > 0 ? "mixed" : "pending";
+          } else {
+            sectorMap.set(offer.startup_sector, {
+              sector: offer.startup_sector,
+              amount: offer.offered_amount,
+              currentValue: 0,
+              count: 1,
+              pendingAmount: offer.offered_amount,
+              acceptedAmount: 0,
+              exposureType: "pending",
+            });
+          }
+        });
+
       const sectorBreakdown = Array.from(sectorMap.values()).sort(
-        (a, b) => b.currentValue - a.currentValue
+        (a, b) => b.amount - a.amount
       );
+
+      const activityMap = new Map<string, PaperPortfolioActivityItem>();
+
+      (walletTransactions || []).forEach((transaction) => {
+        const amount = toNumber(transaction.amount);
+        const baseItem = {
+          id: `wallet-${transaction.id}`,
+          amount,
+          created_at: transaction.created_at,
+        };
+
+        if (transaction.type === "add_funds" || transaction.type === "initial_funding") {
+          activityMap.set(baseItem.id, {
+            ...baseItem,
+            type: "add_funds",
+            title: "Virtual funds added",
+            description:
+              transaction.description || "Simulated funds were added to your wallet.",
+          });
+        } else if (transaction.type === "investment_reserved") {
+          activityMap.set(baseItem.id, {
+            ...baseItem,
+            type: "offer_submitted",
+            title: "Investment offer submitted",
+            description:
+              transaction.description ||
+              "Virtual funds were reserved for a pending offer.",
+          });
+        } else if (transaction.type === "investment_finalized") {
+          activityMap.set(baseItem.id, {
+            ...baseItem,
+            type: "offer_accepted",
+            title: "Offer accepted",
+            description:
+              transaction.description ||
+              "A startup accepted your simulated investment offer.",
+          });
+        } else if (transaction.type === "investment_released") {
+          activityMap.set(baseItem.id, {
+            ...baseItem,
+            type: "offer_cancelled",
+            title: "Reserved funds released",
+            description:
+              transaction.description ||
+              "Reserved simulated funds were returned to available cash.",
+          });
+        }
+      });
+
+      pendingOffers.forEach((offer) => {
+        if (offer.status === "rejected") {
+          activityMap.set(`offer-${offer.id}-rejected`, {
+            id: `offer-${offer.id}-rejected`,
+            type: "offer_rejected",
+            title: "Offer rejected",
+            description: `${offer.startup_name} rejected your simulated offer.`,
+            amount: offer.offered_amount,
+            created_at: offer.updated_at || offer.created_at,
+            status: offer.status,
+          });
+        }
+
+        if (offer.status === "cancelled") {
+          activityMap.set(`offer-${offer.id}-cancelled`, {
+            id: `offer-${offer.id}-cancelled`,
+            type: "offer_cancelled",
+            title: "Offer cancelled",
+            description: `You cancelled the pending offer for ${offer.startup_name}.`,
+            amount: offer.offered_amount,
+            created_at: offer.updated_at || offer.created_at,
+            status: offer.status,
+          });
+        }
+      });
+
+      const { data: valuationHistory, error: valuationHistoryError } =
+        await supabase
+          .from("startup_valuation_history")
+          .select("*")
+          .in("startup_id", startupIds)
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+      if (valuationHistoryError && !isRelationMissingError(valuationHistoryError)) {
+        return { data: null, error: valuationHistoryError.message };
+      }
+
+      (valuationHistory || []).forEach((entry) => {
+        const startup = startupMap.get(entry.startup_id);
+        activityMap.set(`valuation-${entry.id}`, {
+          id: `valuation-${entry.id}`,
+          type: "valuation_changed",
+          title: "Valuation updated",
+          description: `${
+            startup?.startup_name || "A startup"
+          } now carries a simulated valuation of ${roundCurrency(
+            toNumber(entry.valuation)
+          ).toLocaleString()} SAR.`,
+          amount: toNumber(entry.valuation),
+          created_at: entry.created_at,
+        });
+      });
+
+      const recentActivity = Array.from(activityMap.values())
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+        .slice(0, 8);
 
       return {
         data: {
@@ -745,6 +900,7 @@ export class PaperVentureService {
           positions,
           sectorBreakdown,
           pendingOffers,
+          recentActivity,
         },
         error: null,
       };
@@ -756,6 +912,7 @@ export class PaperVentureService {
             positions: [],
             sectorBreakdown: [],
             pendingOffers: [],
+            recentActivity: [],
           },
           error: null,
         };

@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Building, ArrowRight, X, Star } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Building,
+  ArrowRight,
+  X,
+  Star,
+  Sparkles,
+  Landmark,
+  TrendingUp,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -24,7 +34,6 @@ import {
 } from "@/lib/startup-types";
 import { Pagination } from "@/components/ui/pagination";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
-import { MatchmakingService } from "@/lib/matchmaking-service";
 import Navbar from "./Navbar";
 
 interface InvestorBrowseStartupsProps {
@@ -33,6 +42,42 @@ interface InvestorBrowseStartupsProps {
 }
 
 const ITEMS_PER_PAGE = 12;
+const DEFAULT_SAMPLE_CHECK = 50000;
+
+const formatCurrency = (value?: string | number) => {
+  const numericValue =
+    typeof value === "number" ? value : value ? Number(value) : NaN;
+
+  if (!Number.isFinite(numericValue)) {
+    return "Undisclosed";
+  }
+
+  return `SAR ${numericValue.toLocaleString()}`;
+};
+
+const getStartupInitials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+
+const getBannerPalette = (seed: string) => {
+  const palettes = [
+    "from-sky-500 via-cyan-500 to-emerald-500",
+    "from-indigo-500 via-violet-500 to-fuchsia-500",
+    "from-amber-500 via-orange-500 to-rose-500",
+    "from-emerald-500 via-teal-500 to-sky-500",
+    "from-slate-700 via-slate-900 to-emerald-700",
+  ];
+
+  const index =
+    seed.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) %
+    palettes.length;
+
+  return palettes[index];
+};
 
 const InvestorBrowseStartups = ({
   isDashboard = false,
@@ -85,112 +130,55 @@ const InvestorBrowseStartups = ({
         return;
       }
 
-      // Get matchmade startups for this investor
-      const { data: matchmakings, error: matchmakingError } =
-        await MatchmakingService.getMatchmakingsByInvestor(user.id);
-
-      if (matchmakingError) {
-        toast({
-          title: "Error",
-          description: matchmakingError,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!matchmakings || matchmakings.length === 0) {
-        setStartups([]);
-        setTotalPages(1);
-        setTotal(0);
-        return;
-      }
-
-      // Get current date and date from 7 days ago
-      const currentDate = new Date();
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(currentDate.getDate() - 7);
-
-      // Filter out archived matchmakings and those older than 7 days
-      const activeMatchmakings = matchmakings.filter((m) => {
-        // Check if not archived
-        if (m.is_archived) return false;
-
-        // Check if created within last 7 days
-        const createdDate = new Date(m.created_at);
-        return createdDate >= sevenDaysAgo;
-      });
-
-      const startupIds = [
-        ...new Set(activeMatchmakings.map((m) => m.startup_id)),
-      ];
-
-      if (startupIds.length === 0) {
-        setStartups([]);
-        setTotalPages(1);
-        setTotal(0);
-        return;
-      }
-
-      // Fetch full startup details for the matchmade startups
-      const { data: allStartups, error: startupsError } =
-        await StartupService.getStartupsByIds(startupIds);
-
-      if (startupsError) {
-        toast({
-          title: "Error",
-          description: startupsError,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      let filteredStartups = allStartups || [];
-
-      // Apply search and filter criteria to matchmade startups
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        filteredStartups = filteredStartups.filter(
-          (startup) =>
-            startup.name.toLowerCase().includes(searchLower) ||
-            startup.industry.toLowerCase().includes(searchLower) ||
-            (startup.description &&
-              startup.description.toLowerCase().includes(searchLower))
-        );
-      }
-
-      if (selectedIndustry && selectedIndustry !== "all-industries") {
-        filteredStartups = filteredStartups.filter(
-          (startup) => startup.industry === selectedIndustry
-        );
-      }
-
-      if (selectedStage && selectedStage !== "all-stages") {
-        filteredStartups = filteredStartups.filter(
-          (startup) => startup.stage === selectedStage
-        );
-      }
-
-      // Handle pagination for dashboard vs full view
       if (isDashboard) {
-        const limitedStartups = filteredStartups.slice(0, maxStartups || 6);
-        setStartups(limitedStartups);
-        setTotalPages(1);
-        setTotal(limitedStartups.length);
-      } else {
-        // Implement client-side pagination for filtered results
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const paginatedStartups = filteredStartups.slice(startIndex, endIndex);
+        const { data, error } = await StartupService.getDashboardStartups(
+          maxStartups || 6
+        );
 
-        setStartups(paginatedStartups);
-        setTotalPages(Math.ceil(filteredStartups.length / ITEMS_PER_PAGE));
-        setTotal(filteredStartups.length);
+        if (error) {
+          toast({
+            title: "Error",
+            description: error,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setStartups(data || []);
+        setTotalPages(1);
+        setTotal((data || []).length);
+        return;
       }
+
+      const filters: StartupFilters = {
+        searchTerm: searchTerm || undefined,
+        industry:
+          selectedIndustry !== "all-industries" ? selectedIndustry : undefined,
+        stage: selectedStage !== "all-stages" ? selectedStage : undefined,
+        limit: ITEMS_PER_PAGE,
+        offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      };
+
+      const result = await StartupService.getVettedStartups(filters);
+
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const paginatedData = result.data as PaginatedStartups;
+      setStartups(paginatedData.startups || []);
+      setTotalPages(paginatedData.totalPages || 1);
+      setTotal(paginatedData.total || 0);
     } catch (error) {
-      console.error("Error fetching matchmade startups:", error);
+      console.error("Error fetching startups:", error);
       toast({
         title: "Error",
-        description: "Failed to load matchmade startups",
+        description: "Failed to load startups",
         variant: "destructive",
       });
     } finally {
@@ -200,59 +188,13 @@ const InvestorBrowseStartups = ({
 
   const fetchFilterOptions = async () => {
     try {
-      if (!user?.id) return;
+      const [industriesResult, stagesResult] = await Promise.all([
+        StartupService.getIndustries(),
+        StartupService.getStages(),
+      ]);
 
-      // Get matchmade startups to extract filter options from them
-      const { data: matchmakings } =
-        await MatchmakingService.getMatchmakingsByInvestor(user.id);
-
-      if (!matchmakings || matchmakings.length === 0) {
-        setIndustries([]);
-        setStages([]);
-        return;
-      }
-
-      // Get current date and date from 7 days ago
-      const currentDate = new Date();
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(currentDate.getDate() - 7);
-
-      // Filter out archived matchmakings and those older than 7 days
-      const activeMatchmakings = matchmakings.filter((m) => {
-        // Check if not archived
-        if (m.is_archived) return false;
-
-        // Check if created within last 7 days
-        const createdDate = new Date(m.created_at);
-        return createdDate >= sevenDaysAgo;
-      });
-
-      const startupIds = [
-        ...new Set(activeMatchmakings.map((m) => m.startup_id)),
-      ];
-
-      if (startupIds.length === 0) {
-        setIndustries([]);
-        setStages([]);
-        return;
-      }
-
-      const { data: matchedStartups } = await StartupService.getStartupsByIds(
-        startupIds
-      );
-
-      if (matchedStartups) {
-        // Extract unique industries and stages from matched startups
-        const uniqueIndustries = [
-          ...new Set(matchedStartups.map((s) => s.industry)),
-        ].filter(Boolean);
-        const uniqueStages = [
-          ...new Set(matchedStartups.map((s) => s.stage)),
-        ].filter(Boolean);
-
-        setIndustries(uniqueIndustries);
-        setStages(uniqueStages);
-      }
+      setIndustries(industriesResult.data || []);
+      setStages(stagesResult.data || []);
     } catch (error) {
       console.error("Error fetching filter options:", error);
     }
@@ -419,7 +361,7 @@ const InvestorBrowseStartups = ({
             <div className="max-w-4xl mx-auto text-center mb-12">
               <h1 className="text-4xl font-bold mb-4">Your Matched Startups</h1>
               <p className="text-xl text-muted-foreground">
-                Explore startups carefully selected for you by our team
+                Explore approved startups and simulate venture investments with virtual funds
               </p>
             </div>
           )}
@@ -532,43 +474,146 @@ const InvestorBrowseStartups = ({
               {startups.map((startup) => (
                 <motion.div
                   key={startup.id}
-                  whileHover={{ y: -5 }}
-                  className="bg-card border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                  whileHover={{ y: -8, scale: 1.01 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="group overflow-hidden rounded-3xl border border-white/10 bg-card shadow-md transition-all duration-300 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 flex flex-col h-full"
                 >
-                  <div
-                    className="h-40 bg-center bg-cover flex-shrink-0"
-                    style={{
-                      backgroundImage: `url(${startup.image || ""})`,
-                    }}
-                  />
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="mb-2">
-                      <h3 className="text-xl font-bold mb-2 break-words">
-                        {startup.name}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline">{startup.stage}</Badge>
-                        <Badge variant="secondary">{startup.industry}</Badge>
+                  <div className="relative h-44 flex-shrink-0 overflow-hidden">
+                    {startup.image ? (
+                      <div
+                        className="absolute inset-0 bg-center bg-cover transition-transform duration-500 group-hover:scale-105"
+                        style={{
+                          backgroundImage: `url(${startup.image})`,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${getBannerPalette(
+                          startup.name
+                        )}`}
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" />
+
+                    <div className="relative flex h-full flex-col justify-between p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <Badge className="border-white/15 bg-white/15 text-white hover:bg-white/15">
+                          <Sparkles className="mr-1 h-3.5 w-3.5" />
+                          {startup.verified ? "Active Opportunity" : "New"}
+                        </Badge>
+                        {interestedStartups.includes(startup.id) && (
+                          <Badge className="border-emerald-300/20 bg-emerald-400/15 text-emerald-50 hover:bg-emerald-400/15">
+                            <Star className="mr-1 h-3.5 w-3.5" />
+                            Interested
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="flex items-end justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-xs uppercase tracking-[0.22em] text-white/65">
+                            {startup.industry}
+                          </div>
+                          <div className="mt-2 line-clamp-1 text-2xl font-semibold text-white">
+                            {startup.startup_name || startup.name}
+                          </div>
+                        </div>
+                        {!startup.image && (
+                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-lg font-semibold text-white backdrop-blur">
+                            {getStartupInitials(startup.startup_name || startup.name)}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <p className="text-muted-foreground mb-4 line-clamp-3 flex-grow">
-                      {startup.description}
-                    </p>
-                    <div className="mt-auto flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <span className="text-sm font-medium">Valuation:</span>
-                        <span className="ml-1 text-sm">
-                          {startup.valuation
-                            ? `${Number(startup.valuation).toLocaleString()} SAR`
-                            : "Undisclosed"}
-                        </span>
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="rounded-full">
+                          {startup.stage}
+                        </Badge>
+                        <Badge
+                          variant="secondary"
+                          className="rounded-full bg-primary/10 text-primary"
+                        >
+                          {startup.industry}
+                        </Badge>
+                        {startup.valuation_amount && (
+                          <Badge
+                            variant="outline"
+                            className="rounded-full border-emerald-500/20 bg-emerald-500/5 text-emerald-700"
+                          >
+                            <TrendingUp className="mr-1 h-3 w-3" />
+                            {formatCurrency(startup.valuation_amount)}
+                          </Badge>
+                        )}
                       </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-xl font-bold leading-tight text-foreground">
+                          {startup.name}
+                        </h3>
+                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                          {startup.description}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-muted/20 p-4">
+                        <div className="space-y-1">
+                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                            Valuation
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {formatCurrency(startup.valuation_amount || startup.valuation)}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                            Stage
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {startup.stage}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                            Sector
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {startup.industry}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
+                        <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                          <Landmark className="h-4 w-4" />
+                          Investment insight
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {startup.valuation_amount
+                            ? `${formatCurrency(
+                                DEFAULT_SAMPLE_CHECK
+                              )} \u2192 ~${(
+                                (DEFAULT_SAMPLE_CHECK / startup.valuation_amount) *
+                                100
+                              ).toFixed(2)}% equity`
+                            : "Add a sample check to estimate implied equity after opening the opportunity."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5">
                       <Button
                         onClick={() => handleStartupClick(startup)}
-                        size="sm"
-                        className="rounded-full w-full sm:w-auto"
+                        size="lg"
+                        className="h-12 w-full rounded-2xl text-base font-semibold shadow-lg transition-all duration-300 group-hover:bg-primary/90 group-hover:shadow-primary/20"
                       >
-                        Review & Invest <ArrowRight className="ml-1 h-4 w-4" />
+                        Review & Invest
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                       </Button>
                     </div>
                   </div>
@@ -582,8 +627,8 @@ const InvestorBrowseStartups = ({
             <div className="text-center mb-8 mt-8">
               <p className="text-muted-foreground">
                 {total === 0
-                  ? "No matched startups found"
-                  : `${total} matched startup${total !== 1 ? "s" : ""} found`}
+                  ? "No startups found"
+                  : `${total} startup${total !== 1 ? "s" : ""} found`}
               </p>
             </div>
           )}
@@ -592,12 +637,12 @@ const InvestorBrowseStartups = ({
             <div className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-xl font-medium mb-2">
-                No matched startups found
+                No startups found
               </h3>
               <p className="text-muted-foreground">
                 {searchTerm || selectedIndustry || selectedStage
                   ? "Try adjusting your search criteria or filters."
-                  : "No startups have been matched to you yet. Our team will notify you when new matches are available!"}
+                  : "No approved startups are available yet."}
               </p>
             </div>
           )}

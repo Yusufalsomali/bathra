@@ -9,6 +9,7 @@ import NotificationDropdown from "@/components/NotificationDropdown";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import { useLanguage } from "@/context/LanguageContext";
 import { homeTranslations } from "@/utils/language/home";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const { language } = useLanguage();
+  const { language, isRTL } = useLanguage();
 
   const accountType = profile?.accountType;
 
@@ -136,7 +137,7 @@ const Navbar = () => {
           path: "/investor-dashboard",
         },
         {
-          label: "Portfolio",
+          label: language === "Arabic" ? "المحفظة" : "Portfolio",
           path: "/portfolio",
         },
         {
@@ -230,7 +231,10 @@ const Navbar = () => {
             window.scrollTo(0, 0);
             setIsMobileMenuOpen(false);
           }}
-          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          className={cn(
+            "flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2",
+            isRTL ? "text-right justify-end" : "text-left"
+          )}
         >
           <LogIn className="w-4 h-4" />
           {homeTranslations.navSignIn[language]}
@@ -244,14 +248,20 @@ const Navbar = () => {
         <>
           <button
             onClick={() => handleNavigation("/")}
-            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+            className={cn(
+              "flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2",
+              isRTL ? "text-right justify-end" : "text-left"
+            )}
           >
             <Home className="w-4 h-4" />
             Main Site
           </button>
           <button
             onClick={() => handleNavigation("/admin")}
-            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+            className={cn(
+              "flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2",
+              isRTL ? "text-right justify-end" : "text-left"
+            )}
           >
             <Shield className="w-4 h-4" />
             Admin
@@ -261,7 +271,10 @@ const Navbar = () => {
               handleLogout();
               setIsMobileMenuOpen(false);
             }}
-            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+            className={cn(
+              "text-foreground hover:text-primary transition-colors duration-200 py-2",
+              isRTL ? "text-right" : "text-left"
+            )}
           >
             Sign Out
           </button>
@@ -277,7 +290,10 @@ const Navbar = () => {
             handleLogout();
             setIsMobileMenuOpen(false);
           }}
-          className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          className={cn(
+            "text-foreground hover:text-primary transition-colors duration-200 py-2",
+            isRTL ? "text-right" : "text-left"
+          )}
         >
           {homeTranslations.navSignOut[language]}
         </button>
@@ -290,7 +306,10 @@ const Navbar = () => {
               handleLogout();
               setIsMobileMenuOpen(false);
             }}
-            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+            className={cn(
+              "text-foreground hover:text-primary transition-colors duration-200 py-2",
+              isRTL ? "text-right" : "text-left"
+            )}
           >
             {homeTranslations.navSignOut[language]}
           </button>
@@ -313,7 +332,12 @@ const Navbar = () => {
         }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
+          <div
+            className={cn(
+              "flex items-center justify-between",
+              isRTL && "flex-row-reverse"
+            )}
+          >
             <button
               onClick={() => handleNavigation("/")}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
@@ -321,7 +345,12 @@ const Navbar = () => {
               <img src="/Logo.svg" alt="Bathra Logo" className="h-5 w-auto" />
             </button>
 
-            <div className="hidden md:flex items-center gap-6">
+            <div
+              className={cn(
+                "hidden md:flex items-center gap-6",
+                isRTL && "flex-row-reverse"
+              )}
+            >
               {navItems.map((item) => (
                 <button
                   key={item.label}
@@ -366,19 +395,22 @@ const Navbar = () => {
             }`}
           >
             <div className="container mx-auto px-4 py-4">
-              <div className="flex flex-col space-y-4">
+              <div className={cn("flex flex-col space-y-4", isRTL && "items-end")}>
                 {navItems.map((item) => (
                   <button
                     key={item.label}
                     onClick={() => handleNavigation(item.path)}
-                    className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                    className={cn(
+                      "text-foreground hover:text-primary transition-colors duration-200 py-2",
+                      isRTL ? "text-right" : "text-left"
+                    )}
                   >
                     {item.label}
                   </button>
                 ))}
 
                 {/* Language Selector for mobile */}
-                <div className="py-2 flex justify-start">
+                <div className={cn("py-2 flex", isRTL ? "justify-end" : "justify-start")}>
                   <LanguageSelector />
                 </div>
 
@@ -386,7 +418,12 @@ const Navbar = () => {
                 {user &&
                   (profile?.accountType === "admin" ||
                     canBrowseContent(profile)) && (
-                    <div className="py-2 flex justify-start">
+                    <div
+                      className={cn(
+                        "py-2 flex",
+                        isRTL ? "justify-end" : "justify-start"
+                      )}
+                    >
                       <NotificationDropdown />
                     </div>
                   )}

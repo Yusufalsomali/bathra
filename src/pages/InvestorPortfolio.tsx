@@ -4,14 +4,17 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { PaperVentureService } from "@/lib/paper-venture-service";
 import { InvestorPortfolioSummary } from "@/lib/paper-venture-types";
 import InvestorPortfolioSection from "@/components/paper-venture/InvestorPortfolioSection";
 import AddVirtualFundsDialog from "@/components/paper-venture/AddVirtualFundsDialog";
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const InvestorPortfolio = () => {
   const { user } = useAuth();
+  const { isRTL } = useLanguage();
   const navigate = useNavigate();
   const [summary, setSummary] = useState<InvestorPortfolioSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,9 +94,26 @@ const InvestorPortfolio = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-7xl mx-auto"
+            className={`max-w-7xl mx-auto ${isRTL ? "text-right" : ""}`}
           >
-            {isLoading ? null : (
+            {isLoading ? (
+              <div className="space-y-6">
+                <Skeleton className="h-[260px] w-full rounded-[32px]" />
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Skeleton key={index} className="h-36 w-full rounded-2xl" />
+                  ))}
+                </div>
+                <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+                  <Skeleton className="h-[420px] w-full rounded-2xl" />
+                  <Skeleton className="h-[420px] w-full rounded-2xl" />
+                </div>
+                <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+                  <Skeleton className="h-[420px] w-full rounded-2xl" />
+                  <Skeleton className="h-[420px] w-full rounded-2xl" />
+                </div>
+              </div>
+            ) : (
               <InvestorPortfolioSection
                 summary={summary}
                 onAddFunds={() => setIsAddFundsOpen(true)}
