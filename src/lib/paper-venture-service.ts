@@ -6,6 +6,7 @@ import {
   PaperWallet,
   Startup,
 } from "./supabase";
+import { NotificationService } from "./notification-service";
 import {
   CreatePaperInvestmentOfferInput,
   InvestorPaperProfilePreview,
@@ -379,6 +380,18 @@ export class PaperVentureService {
       return { success: false, error: offerError.message };
     }
 
+    // Notify startup of new investment offer
+    await NotificationService.createNotification({
+      user_id: input.startupId,
+      type: "investment_interest",
+      title: "New Investment Offer",
+      content: `An investor has made a simulated investment offer of SAR ${input.amount.toLocaleString()} for your startup.`,
+      priority: "high",
+      action_url: "/startup-dashboard",
+      action_label: "View Offer",
+      metadata: { investor_id: input.investorId, amount: input.amount },
+    });
+
     const { error: walletError } = await supabase
       .from("paper_wallets")
       .update({
@@ -461,6 +474,19 @@ export class PaperVentureService {
       `Released reserved simulated funds for ${status} offer`,
       { offer_id: offerId, startup_id: offer.startup_id }
     );
+
+    // Notify investor of rejection or cancellation
+    const actionLabel = status === "rejected" ? "rejected" : "cancelled";
+    await NotificationService.createNotification({
+      user_id: offer.investor_id,
+      type: "investment_interest",
+      title: `Investment Offer ${status === "rejected" ? "Rejected" : "Cancelled"}`,
+      content: `Your simulated investment offer of SAR ${offer.amount.toLocaleString()} was ${actionLabel}.`,
+      priority: "normal",
+      action_url: "/investor-portfolio",
+      action_label: "View Portfolio",
+      metadata: { offer_id: offerId, status },
+    });
 
     return { success: true, error: null };
   }
@@ -565,6 +591,18 @@ export class PaperVentureService {
       `Finalized simulated investment in ${startup.startup_name}`,
       { offer_id: offer.id, startup_id: offer.startup_id }
     );
+
+    // Notify investor of acceptance
+    await NotificationService.createNotification({
+      user_id: offer.investor_id,
+      type: "investment_interest",
+      title: "Investment Offer Accepted",
+      content: `${startup.startup_name} has accepted your simulated investment offer of SAR ${offer.amount.toLocaleString()}.`,
+      priority: "high",
+      action_url: "/investor-portfolio",
+      action_label: "View Portfolio",
+      metadata: { startup_id: offer.startup_id, amount: offer.amount },
+    });
 
     return { success: true, error: null };
   }
