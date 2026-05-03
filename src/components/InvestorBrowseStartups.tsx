@@ -34,6 +34,7 @@ import {
 } from "@/lib/startup-types";
 import { Pagination } from "@/components/ui/pagination";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
+import { PaperVentureService } from "@/lib/paper-venture-service";
 import { supabase } from "@/lib/supabase";
 import Navbar from "./Navbar";
 
@@ -126,6 +127,7 @@ const InvestorBrowseStartups = ({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [interestedStartups, setInterestedStartups] = useState<string[]>([]);
   const [investorProfile, setInvestorProfile] = useState<{ preferred_industries?: string; preferred_company_stage?: string } | null>(null);
+  const [fundingProgress, setFundingProgress] = useState<Map<string, number>>(new Map());
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -187,6 +189,7 @@ const InvestorBrowseStartups = ({
         setStartups(data || []);
         setTotalPages(1);
         setTotal((data || []).length);
+        PaperVentureService.getFundingProgressMap((data || []).map((s) => s.id)).then(setFundingProgress);
         return;
       }
 
@@ -211,9 +214,11 @@ const InvestorBrowseStartups = ({
       }
 
       const paginatedData = result.data as PaginatedStartups;
-      setStartups(paginatedData.startups || []);
+      const loadedStartups = paginatedData.startups || [];
+      setStartups(loadedStartups);
       setTotalPages(paginatedData.totalPages || 1);
       setTotal(paginatedData.total || 0);
+      PaperVentureService.getFundingProgressMap(loadedStartups.map((s) => s.id)).then(setFundingProgress);
     } catch (error) {
       console.error("Error fetching startups:", error);
       toast({
@@ -646,6 +651,25 @@ const InvestorBrowseStartups = ({
                           </div>
                         </div>
                       </div>
+
+                      {startup.funding_goal && startup.funding_goal > 0 && (() => {
+                        const raised = fundingProgress.get(startup.id) ?? 0;
+                        const pct = Math.min(Math.round((raised / startup.funding_goal) * 100), 100);
+                        return (
+                          <div className="space-y-1 px-1">
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Paper funding</span>
+                              <span>{pct}% filled</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-green-500" : pct >= 40 ? "bg-primary" : "bg-muted-foreground/40"}`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
                         <div className="flex items-center gap-2 text-sm font-medium text-primary">

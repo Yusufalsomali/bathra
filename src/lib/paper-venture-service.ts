@@ -607,6 +607,25 @@ export class PaperVentureService {
     return { success: true, error: null };
   }
 
+  static async getFundingProgressMap(
+    startupIds: string[]
+  ): Promise<Map<string, number>> {
+    // Returns Map<startupId, totalRaisedSAR>
+    if (startupIds.length === 0) return new Map();
+
+    const { data } = await supabase
+      .from("paper_investments")
+      .select("startup_id, amount")
+      .in("startup_id", startupIds)
+      .eq("status", "active");
+
+    const totals = new Map<string, number>();
+    for (const row of data ?? []) {
+      totals.set(row.startup_id, (totals.get(row.startup_id) ?? 0) + toNumber(row.amount));
+    }
+    return totals;
+  }
+
   private static buildWalletSummary(
     wallet: PaperWallet,
     positions: PaperPortfolioPosition[],
