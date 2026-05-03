@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 import { StartupService } from "@/lib/startup-service";
 import { AdminStartupInfo } from "@/lib/startup-types";
 import {
@@ -61,6 +62,19 @@ const StartupScoringSystem = () => {
   const [showWeightConfig, setShowWeightConfig] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const handleSaveScore = async () => {
+    if (!selectedStartupId || !score) return;
+    const { error } = await supabase
+      .from("startups")
+      .update({ score })
+      .eq("id", selectedStartupId);
+    if (error) {
+      toast({ title: "Error saving score", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Score saved", description: `Score of ${score} saved for this startup.` });
+    }
+  };
 
   useEffect(() => {
     loadStartups();
@@ -451,6 +465,12 @@ const StartupScoringSystem = () => {
               <div className="w-full">
                 <Progress value={score} className="h-2" />
               </div>
+
+              {selectedStartupId && (
+                <Button onClick={handleSaveScore} variant="outline" size="sm" className="mt-2 w-full">
+                  Save Score to Profile
+                </Button>
+              )}
             </CardContent>
           </Card>
 

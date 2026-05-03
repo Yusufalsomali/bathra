@@ -164,6 +164,9 @@ export type Tables = {
     verified_at?: string;
     verified_by?: string;
 
+    // Admin scoring
+    score?: number;
+
     // System fields
     created_at: string;
     updated_at?: string;

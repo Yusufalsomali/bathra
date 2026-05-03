@@ -25,6 +25,7 @@ export interface StartupBasicInfo {
   verified?: boolean;
   image?: string;
   logo?: string;
+  score?: number;
 }
 
 // Extended startup information visible to admins

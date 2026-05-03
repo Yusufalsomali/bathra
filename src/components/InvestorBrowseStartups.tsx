@@ -582,6 +582,19 @@ const InvestorBrowseStartups = ({
                           <div className="mt-2 line-clamp-1 text-2xl font-semibold text-white">
                             {startup.startup_name || startup.name}
                           </div>
+                          {startup.score != null && (
+                            <span
+                              className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                                startup.score >= 75
+                                  ? "bg-green-100 text-green-800 border-green-200"
+                                  : startup.score >= 50
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  : "bg-gray-100 text-gray-600 border-gray-200"
+                              }`}
+                            >
+                              Score: {startup.score}
+                            </span>
+                          )}
                         </div>
                         {!startup.image && (
                           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-lg font-semibold text-white backdrop-blur">
