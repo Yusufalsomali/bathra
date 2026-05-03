@@ -12,6 +12,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
 import StartupPaperInvestmentHub from "@/components/paper-venture/StartupPaperInvestmentHub";
+import { StartupActivityFeed } from "@/components/startup/StartupActivityFeed";
 
 const StartupDashboard = () => {
   const { user, profile } = useAuth();
@@ -205,6 +206,12 @@ const StartupDashboard = () => {
             <div className="mt-8">
               <StartupPaperInvestmentHub />
             </div>
+
+            {user?.id && (
+              <div className="mt-8">
+                <StartupActivityFeed startupId={user.id} />
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
