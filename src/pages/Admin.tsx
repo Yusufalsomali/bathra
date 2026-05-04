@@ -10,6 +10,7 @@ import AdminManagement from "@/components/admin/AdminManagement";
 import UserInvitesManagement from "@/components/admin/UserInvitesManagement";
 import ConnectionsManagement from "@/components/admin/ConnectionsManagement";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import AdminPaperInvestments from "@/components/admin/AdminPaperInvestments";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
   Shield,
   UserPlus,
   Network,
+  TrendingUp,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { adminService } from "@/lib/admin-service";
@@ -59,7 +61,8 @@ const Admin = () => {
     | "admins"
     | "invites"
     | "connections"
-    | "analytics" => {
+    | "analytics"
+    | "investments" => {
     const path = window.location.pathname;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
@@ -73,6 +76,7 @@ const Admin = () => {
     if (tabParam === "invites") return "invites";
     if (tabParam === "connections") return "connections";
     if (tabParam === "analytics") return "analytics";
+    if (tabParam === "investments") return "investments";
 
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
@@ -96,6 +100,7 @@ const Admin = () => {
     | "invites"
     | "connections"
     | "analytics"
+    | "investments"
   >(getInitialTab());
 
   // Update active tab when URL changes
@@ -190,6 +195,14 @@ const Admin = () => {
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </Button>
+              <Button
+                variant={activeTab === "investments" ? "default" : "outline"}
+                onClick={() => setActiveTab("investments")}
+                className="flex items-center gap-2"
+              >
+                <TrendingUp className="h-4 w-4" />
+                Investments
+              </Button>
               {isSuperAdmin && (
                 <>
                   <Button
@@ -238,6 +251,8 @@ const Admin = () => {
               <UserInvitesManagement />
             ) : activeTab === "analytics" ? (
               <AnalyticsDashboard />
+            ) : activeTab === "investments" ? (
+              <AdminPaperInvestments />
             ) : (
               <BlogManagement />
             )}
