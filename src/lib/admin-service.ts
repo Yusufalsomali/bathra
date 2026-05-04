@@ -955,6 +955,65 @@ class AdminService {
       };
     }
   }
+
+  async getAnalyticsData(): Promise<{
+    data: {
+      sectorBreakdown: { sector: string; count: number }[];
+      stageBreakdown: { stage: string; count: number }[];
+      offerConversion: { total: number; accepted: number; rejected: number; pending: number };
+      totalPaperCapital: number;
+    };
+    error: string | null;
+  }> {
+    try {
+      const [
+        { data: startups },
+        { data: offers },
+        { data: investments },
+      ] = await Promise.all([
+        supabase.from("startups").select("industry, stage").eq("status", "approved"),
+        supabase.from("paper_investment_offers").select("status"),
+        supabase.from("paper_investments").select("amount").eq("status", "active"),
+      ]);
+
+      const sectorMap = new Map<string, number>();
+      for (const s of startups ?? []) {
+        const key = s.industry || "Other";
+        sectorMap.set(key, (sectorMap.get(key) ?? 0) + 1);
+      }
+      const sectorBreakdown = Array.from(sectorMap.entries())
+        .map(([sector, count]) => ({ sector, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const stageMap = new Map<string, number>();
+      for (const s of startups ?? []) {
+        const key = s.stage || "Unknown";
+        stageMap.set(key, (stageMap.get(key) ?? 0) + 1);
+      }
+      const stageBreakdown = Array.from(stageMap.entries())
+        .map(([stage, count]) => ({ stage, count }));
+
+      const total = offers?.length ?? 0;
+      const accepted = offers?.filter((o) => o.status === "accepted").length ?? 0;
+      const rejected = offers?.filter((o) => o.status === "rejected").length ?? 0;
+      const pending = offers?.filter((o) => o.status === "pending").length ?? 0;
+
+      const totalPaperCapital = (investments ?? []).reduce(
+        (sum, i) => sum + (typeof i.amount === "number" ? i.amount : parseFloat(String(i.amount)) || 0),
+        0
+      );
+
+      return {
+        data: { sectorBreakdown, stageBreakdown, offerConversion: { total, accepted, rejected, pending }, totalPaperCapital },
+        error: null,
+      };
+    } catch (err) {
+      return {
+        data: { sectorBreakdown: [], stageBreakdown: [], offerConversion: { total: 0, accepted: 0, rejected: 0, pending: 0 }, totalPaperCapital: 0 },
+        error: (err as Error).message,
+      };
+    }
+  }
 }
 
 export const adminService = AdminService.getInstance();
