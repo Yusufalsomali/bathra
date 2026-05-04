@@ -9,6 +9,7 @@ import NewsletterManagement from "@/components/admin/NewsletterManagement";
 import AdminManagement from "@/components/admin/AdminManagement";
 import UserInvitesManagement from "@/components/admin/UserInvitesManagement";
 import ConnectionsManagement from "@/components/admin/ConnectionsManagement";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,7 +58,8 @@ const Admin = () => {
     | "newsletter"
     | "admins"
     | "invites"
-    | "connections" => {
+    | "connections"
+    | "analytics" => {
     const path = window.location.pathname;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
@@ -70,6 +72,7 @@ const Admin = () => {
     if (tabParam === "admins") return "admins";
     if (tabParam === "invites") return "invites";
     if (tabParam === "connections") return "connections";
+    if (tabParam === "analytics") return "analytics";
 
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
@@ -92,6 +95,7 @@ const Admin = () => {
     | "admins"
     | "invites"
     | "connections"
+    | "analytics"
   >(getInitialTab());
 
   // Update active tab when URL changes
@@ -178,6 +182,14 @@ const Admin = () => {
                 <Network className="h-4 w-4" />
                 Connections
               </Button>
+              <Button
+                variant={activeTab === "analytics" ? "default" : "outline"}
+                onClick={() => setActiveTab("analytics")}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Analytics
+              </Button>
               {isSuperAdmin && (
                 <>
                   <Button
@@ -224,6 +236,8 @@ const Admin = () => {
               <AdminManagement />
             ) : activeTab === "invites" ? (
               <UserInvitesManagement />
+            ) : activeTab === "analytics" ? (
+              <AnalyticsDashboard />
             ) : (
               <BlogManagement />
             )}
