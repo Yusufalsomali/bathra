@@ -6,10 +6,11 @@ export default function StackLayout() {
       screenOptions={{
         headerShown: true,
         headerBackButtonDisplayMode: "minimal",
+        headerLargeTitle: false,
         headerStyle: { backgroundColor: "#ffffff" },
-        headerTintColor: "#0f172a",
+        headerTintColor: "#000000",
         headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: "700", fontSize: 17 },
+        headerTitleStyle: { fontWeight: "700", fontSize: 15 },
         contentStyle: { backgroundColor: "#ffffff" },
       }}
     >

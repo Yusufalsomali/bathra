@@ -50,7 +50,7 @@ export default function ForgotPasswordScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <View className="flex-1 px-6 pt-14 pb-10">
+        <View className="flex-1 px-6 pt-5 pb-10">
           <TouchableOpacity className="mb-10" onPress={() => router.back()}>
             <Text className="text-slate-500 text-sm">← {t("common.back")}</Text>
           </TouchableOpacity>
@@ -60,7 +60,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <Text
-            className={`text-3xl font-black text-slate-900 mb-2 ${isRTL ? "text-right" : "text-left"}`}
+            className={`text-2xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}
           >
             {t("auth.resetPassword")}
           </Text>

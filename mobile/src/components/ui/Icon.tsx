@@ -11,7 +11,7 @@ interface IconProps {
 export function Icon({
   icon: LucideIconComponent,
   size = 16,
-  color = "#0f172a",
+  color = "#000000",
   strokeWidth = 1.5,
 }: IconProps) {
   return (

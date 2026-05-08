@@ -71,7 +71,7 @@ export default function SignupScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 px-6 pt-14 pb-10">
+          <View className="flex-1 px-6 pt-5 pb-10">
             <TouchableOpacity className="mb-8" onPress={() => router.back()}>
               <Text className="text-slate-500 text-sm">← {t("common.back")}</Text>
             </TouchableOpacity>
@@ -83,7 +83,7 @@ export default function SignupScreen() {
             </View>
 
             <Text
-              className={`text-3xl font-black text-slate-900 mb-1 ${isRTL ? "text-right" : "text-left"}`}
+              className={`text-2xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
             >
               {t("auth.createAccount")}
             </Text>
@@ -143,7 +143,7 @@ export default function SignupScreen() {
             <View className="flex-row justify-center items-center">
               <Text className="text-slate-500">{t("auth.haveAccount")} </Text>
               <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-                <Text className="text-slate-900 font-semibold">{t("auth.signIn")}</Text>
+                <Text className="text-black font-semibold">{t("auth.signIn")}</Text>
               </TouchableOpacity>
             </View>
           </View>

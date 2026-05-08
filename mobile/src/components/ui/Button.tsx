@@ -28,7 +28,7 @@ export function Button({
   const baseClasses = "flex-row items-center justify-center rounded-lg";
 
   const variantClasses = {
-    primary: "bg-slate-900",
+    primary: "bg-black",
     secondary: "bg-slate-100",
     outline: "border border-slate-300 bg-transparent",
     ghost: "bg-transparent",
@@ -43,9 +43,9 @@ export function Button({
 
   const textVariantClasses = {
     primary: "text-white font-medium",
-    secondary: "text-slate-900 font-medium",
-    outline: "text-slate-900 font-medium",
-    ghost: "text-slate-900 font-medium",
+    secondary: "text-black font-medium",
+    outline: "text-black font-medium",
+    ghost: "text-black font-medium",
     destructive: "text-white font-medium",
   };
 
@@ -64,7 +64,7 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === "primary" || variant === "destructive" ? "#fff" : "#0f172a"}
+          color={variant === "primary" || variant === "destructive" ? "#fff" : "#000000"}
           size="small"
         />
       ) : (

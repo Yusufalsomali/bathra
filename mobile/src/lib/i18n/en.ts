@@ -138,6 +138,7 @@ export const en = {
     readMore: "Read more",
     minRead: "min read",
     views: "views",
+    all: "All",
     allCategories: "All",
     news: "News",
     industry_insights: "Industry Insights",

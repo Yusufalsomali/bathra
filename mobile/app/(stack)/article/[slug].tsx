@@ -77,7 +77,7 @@ export default function ArticleDetailScreen() {
 
           {/* Title */}
           <Text
-            className={`text-2xl font-black text-slate-900 leading-8 mb-3 ${isRTL ? "text-right" : "text-left"}`}
+            className={`text-xl font-black text-black leading-7 mb-3 ${isRTL ? "text-right" : "text-left"}`}
           >
             {article.title}
           </Text>

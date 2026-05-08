@@ -45,7 +45,7 @@ function ConnectionCard({
           <View className={`flex-row items-center flex-1 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={otherName} size={44} />
             <View className={`flex-1 ${isRTL ? "mr-3" : "ml-3"}`}>
-              <Text className={`font-bold text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
                 {otherName}
               </Text>
               <Text className={`text-xs text-slate-500 ${isRTL ? "text-right" : "text-left"}`}>

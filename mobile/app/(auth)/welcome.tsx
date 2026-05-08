@@ -48,7 +48,7 @@ export default function WelcomeScreen() {
             activeOpacity={0.85}
             onPress={() => Linking.openURL(SIGNUP_URL)}
           >
-            <Text className="text-slate-900 font-bold text-base">{t("auth.signUpOnWeb")}</Text>
+            <Text className="text-black font-bold text-base">{t("auth.signUpOnWeb")}</Text>
             <Text className="text-slate-500 text-xs mt-1">{t("auth.signUpNote")}</Text>
           </TouchableOpacity>
         </View>

@@ -62,7 +62,7 @@ export default function InvestorDetailScreen() {
           <View className={`flex-row items-center mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={investor.name} size={64} />
             <View className={`flex-1 ${isRTL ? "mr-4" : "ml-4"}`}>
-              <Text className={`text-xl font-black text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
                 {investor.name}
               </Text>
               <Text className={`text-slate-500 text-sm ${isRTL ? "text-right" : "text-left"}`}>
@@ -82,7 +82,7 @@ export default function InvestorDetailScreen() {
         <View className="px-4 pt-4">
           {/* Investment preferences */}
           <Card className="mb-3">
-            <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
               {t("profile.investmentPrefs")}
             </Text>
             <InfoRow label={t("profile.preferredIndustries")} value={investor.preferred_industries} isRTL={isRTL} />
@@ -94,7 +94,7 @@ export default function InvestorDetailScreen() {
           {/* Background */}
           {investor.strong_candidate_reason && (
             <Card className="mb-3">
-              <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
                 Background
               </Text>
               <InfoRow label={t("profile.whyStrongCandidate")} value={investor.strong_candidate_reason} isRTL={isRTL} />
@@ -106,13 +106,13 @@ export default function InvestorDetailScreen() {
           {/* Links */}
           {(investor.linkedin_profile || investor.calendly_link) && (
             <Card className="mb-3">
-              <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>Links</Text>
+              <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>Links</Text>
               {investor.linkedin_profile && (
                 <TouchableOpacity
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(investor.linkedin_profile!)}
                 >
-                  <Link2 size={16} stroke="#0f172a" strokeWidth={1.5} />
+                  <Link2 size={16} stroke="#000000" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">LinkedIn Profile</Text>
                 </TouchableOpacity>
               )}
@@ -121,7 +121,7 @@ export default function InvestorDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(investor.calendly_link!)}
                 >
-                  <Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />
+                  <Calendar size={16} stroke="#000000" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">Book a meeting</Text>
                 </TouchableOpacity>
               )}

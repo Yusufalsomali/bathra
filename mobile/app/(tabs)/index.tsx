@@ -9,7 +9,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
@@ -84,6 +84,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
   const { user } = useAuth();
   const { t } = useContext(I18nContext);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [data, setData] = useState<StartupData>({
     profile: null,
     interestedCount: 0,
@@ -142,7 +143,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
   const { profile, interestedCount, daysSinceRegistration, pendingOffers } = data;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
@@ -157,7 +158,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="bg-black px-6 pt-14 pb-8">
+        <View className="bg-black px-6 pb-8" style={{ paddingTop: insets.top + 24 }}>
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
@@ -352,6 +353,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
   const { user } = useAuth();
   const { t } = useContext(I18nContext);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [data, setData] = useState<InvestorData>({
     profile: null,
     wallet: null,
@@ -394,7 +396,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
   const { profile, wallet, availableStartups, recentStartups } = data;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
@@ -409,7 +411,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="bg-black px-6 pt-14 pb-8">
+        <View className="bg-black px-6 pb-8" style={{ paddingTop: insets.top + 24 }}>
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
@@ -436,13 +438,13 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.availableBalance")}</Text>
               </View>
               <View className="flex-1 items-center border-x border-slate-100">
-                <Text className="text-lg font-black text-amber-600">
+                <Text className="text-lg font-black text-black">
                   {wallet ? wallet.reserved_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.reservedBalance")}</Text>
               </View>
               <View className="flex-1 items-center">
-                <Text className="text-lg font-black text-green-600">
+                <Text className="text-lg font-black text-black">
                   {wallet ? wallet.invested_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.investedBalance")}</Text>

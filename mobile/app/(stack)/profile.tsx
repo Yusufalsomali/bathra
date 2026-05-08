@@ -45,7 +45,7 @@ function BoolField({
   return (
     <View className={`flex-row items-center justify-between mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
       <Text className="text-sm text-slate-700 flex-1">{label}</Text>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: "#0f172a" }} />
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: "#000000" }} />
     </View>
   );
 }
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
           <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">
             <View className="items-center">
               <Avatar name={user?.name || "?"} size={72} className="mb-3" />
-              <Text className="text-xl font-black text-slate-900">{user?.name}</Text>
+              <Text className="text-xl font-black text-black">{user?.name}</Text>
               <Text className="text-slate-500 text-sm">{user?.email}</Text>
               <View className="flex-row gap-2 mt-2">
                 <Badge
@@ -256,8 +256,8 @@ export default function ProfileScreen() {
         {isStartup && (
           <View className="mx-4 mb-4 bg-white rounded-2xl p-4 border border-slate-100">
             <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
-              <TrendingUp size={18} stroke="#0f172a" strokeWidth={1.5} />
-              <Text className={`font-bold text-slate-900 text-sm ${isRTL ? "mr-2 text-right" : "ml-2"}`}>
+              <TrendingUp size={18} stroke="#000000" strokeWidth={1.5} />
+              <Text className={`font-bold text-black text-sm ${isRTL ? "mr-2 text-right" : "ml-2"}`}>
                 {t("profile.updateValuation")}
               </Text>
             </View>
@@ -267,7 +267,7 @@ export default function ProfileScreen() {
               </Text>
             ) : null}
             <TextInput
-              className="border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 text-sm mb-2"
+              className="border border-slate-200 rounded-xl px-3 py-2.5 text-black text-sm mb-2"
               placeholder={t("profile.newValuationPlaceholder")}
               keyboardType="numeric"
               value={valuationInput}
@@ -275,7 +275,7 @@ export default function ProfileScreen() {
               textAlign={isRTL ? "right" : "left"}
             />
             <TextInput
-              className="border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 text-sm mb-3"
+              className="border border-slate-200 rounded-xl px-3 py-2.5 text-black text-sm mb-3"
               placeholder={t("profile.valuationReason")}
               value={valuationReason}
               onChangeText={setValuationReason}
@@ -284,7 +284,7 @@ export default function ProfileScreen() {
               textAlign={isRTL ? "right" : "left"}
             />
             <TouchableOpacity
-              className={`rounded-xl py-3 items-center ${!valuationInput || updatingValuation ? "bg-slate-200" : "bg-slate-900"}`}
+              className={`rounded-xl py-3 items-center ${!valuationInput || updatingValuation ? "bg-slate-200" : "bg-black"}`}
               onPress={handleValuationUpdate}
               disabled={!valuationInput || updatingValuation}
               activeOpacity={0.8}

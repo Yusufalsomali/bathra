@@ -1,5 +1,6 @@
 import { Tabs, Redirect } from "expo-router";
 import { useContext } from "react";
+import { Text } from "react-native";
 import { Home, Compass, GitMerge, Newspaper, Bell } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth, useRouteUser } from "@/context/auth-context";
@@ -12,7 +13,7 @@ export default function TabsLayout() {
   const { t } = useContext(I18nContext);
   const { bottom: tabBarBottomInset } = useSafeAreaInsets();
   const tabBarPaddingBottom = 8 + tabBarBottomInset;
-  const tabBarHeight = 64 + tabBarBottomInset;
+  const tabBarHeight = 72 + tabBarBottomInset;
 
   if (isLoading) return <LoadingScreen />;
   if (!routeUser) return <Redirect href="/(auth)" />;
@@ -33,9 +34,12 @@ export default function TabsLayout() {
         tabBarActiveTintColor: "#000000",
         tabBarInactiveTintColor: "#94a3b8",
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: "600",
           marginTop: 2,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 2,
         },
       }}
     >
@@ -61,6 +65,23 @@ export default function TabsLayout() {
         name="matchmaking"
         options={{
           title: t("nav.matchmaking"),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? "#000000" : "#94a3b8",
+                fontSize: 10,
+                fontWeight: "600",
+                textAlign: "center",
+                marginTop: 2,
+                maxWidth: 76,
+              }}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
+              {t("nav.matchmaking")}
+            </Text>
+          ),
           tabBarIcon: ({ focused }) => (
             <GitMerge size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
           ),

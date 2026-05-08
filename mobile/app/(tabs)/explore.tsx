@@ -111,7 +111,7 @@ function StartupCard({
       : "#64748b";
 
   return (
-    <View className="mb-4 rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+    <View className="mb-4 rounded-2xl border border-slate-200 bg-white overflow-hidden">
       {/* Gradient banner */}
       <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
         <LinearGradient
@@ -193,7 +193,7 @@ function StartupCard({
             </View>
             <View className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <View
-                className={`h-full rounded-full ${pct >= 80 ? "bg-green-500" : pct >= 40 ? "bg-slate-900" : "bg-slate-400"}`}
+                className={`h-full rounded-full ${pct >= 80 ? "bg-green-500" : pct >= 40 ? "bg-black" : "bg-slate-400"}`}
                 style={{ width: `${pct}%` }}
               />
             </View>
@@ -203,7 +203,7 @@ function StartupCard({
         {/* Investment insight */}
         {item.pre_money_valuation && item.pre_money_valuation > 0 && (
           <View className="rounded-xl bg-slate-50 border border-slate-100 p-3 mb-3 flex-row items-start">
-            <Landmark size={14} stroke="#0f172a" strokeWidth={1.5} />
+            <Landmark size={14} stroke="#000000" strokeWidth={1.5} />
             <Text className="text-xs text-slate-600 ml-2 flex-1">
               <Text className="font-medium">Investment insight: </Text>
               SAR {SAMPLE_CHECK.toLocaleString()} →{" "}
@@ -214,7 +214,7 @@ function StartupCard({
 
         {/* CTA buttons */}
         <TouchableOpacity
-          className="bg-slate-900 rounded-xl py-3 items-center mb-2 flex-row justify-center"
+          className="bg-black rounded-xl py-3 items-center mb-2 flex-row justify-center"
           onPress={onPress}
           activeOpacity={0.85}
         >
@@ -250,7 +250,7 @@ function InvestorCard({
         <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Avatar name={item.name} size={44} />
           <View className={`flex-1 ${isRTL ? "mr-3" : "ml-3"}`}>
-            <Text className={`font-bold text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
               {item.name}
             </Text>
             <Text className={`text-xs text-slate-500 ${isRTL ? "text-right" : "text-left"}`}>
@@ -427,18 +427,18 @@ export default function ExploreScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-white px-4 pt-14 pb-4 border-b border-slate-100">
-        <View className={`flex-row items-center justify-between mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
-          <Text className={`text-2xl font-black text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+      <View className="bg-white px-4 pt-3 pb-3 border-b border-slate-100">
+        <View className={`flex-row items-center justify-between mb-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+          <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
             {isStartup ? t("explore.browseInvestors") : t("explore.browseStartups")}
           </Text>
           {!isStartup && (
             <TouchableOpacity
-              className={`flex-row items-center px-3 py-2 rounded-xl ${hasActiveFilters ? "bg-slate-900" : "bg-slate-100"}`}
+              className={`flex-row items-center px-3 py-2 rounded-xl ${hasActiveFilters ? "bg-black" : "bg-slate-100"}`}
               onPress={() => setFilterModalVisible(true)}
               activeOpacity={0.7}
             >
-              <SlidersHorizontal size={16} stroke={hasActiveFilters ? "white" : "#0f172a"} strokeWidth={1.5} />
+              <SlidersHorizontal size={16} stroke={hasActiveFilters ? "white" : "#000000"} strokeWidth={1.5} />
               <Text className={`text-xs font-semibold ml-1 ${hasActiveFilters ? "text-white" : "text-slate-700"}`}>
                 {t("common.filter")}
               </Text>
@@ -448,7 +448,7 @@ export default function ExploreScreen() {
         <View className={`flex-row items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Search size={18} stroke="#94a3b8" strokeWidth={1.5} />
           <TextInput
-            className="flex-1 ml-2 text-slate-900 text-sm"
+            className="flex-1 ml-2 text-black text-sm"
             placeholder={isStartup ? t("explore.searchInvestors") : t("explore.searchStartups")}
             placeholderTextColor="#94a3b8"
             value={search}
@@ -467,7 +467,7 @@ export default function ExploreScreen() {
           <View className={`flex-row flex-wrap gap-2 mt-2 ${isRTL ? "flex-row-reverse" : ""}`}>
             {selectedIndustry && (
               <TouchableOpacity
-                className="flex-row items-center bg-slate-900 rounded-full px-3 py-1"
+                className="flex-row items-center bg-black rounded-full px-3 py-1"
                 onPress={() => setSelectedIndustry("")}
               >
                 <Text className="text-white text-xs">{selectedIndustry}</Text>
@@ -476,7 +476,7 @@ export default function ExploreScreen() {
             )}
             {selectedStage && (
               <TouchableOpacity
-                className="flex-row items-center bg-slate-900 rounded-full px-3 py-1"
+                className="flex-row items-center bg-black rounded-full px-3 py-1"
                 onPress={() => setSelectedStage("")}
               >
                 <Text className="text-white text-xs">{selectedStage}</Text>
@@ -540,7 +540,7 @@ export default function ExploreScreen() {
         >
           <SafeAreaView className="flex-1 bg-white">
             <View className={`flex-row items-center justify-between px-4 py-4 border-b border-slate-100 ${isRTL ? "flex-row-reverse" : ""}`}>
-              <Text className="font-black text-slate-900 text-lg">{t("common.filter")}</Text>
+              <Text className="font-black text-black text-lg">{t("common.filter")}</Text>
               <TouchableOpacity onPress={() => setFilterModalVisible(false)} activeOpacity={0.7}>
                 <X size={24} stroke="#64748b" strokeWidth={1.5} />
               </TouchableOpacity>
@@ -551,7 +551,7 @@ export default function ExploreScreen() {
               </Text>
               <View className="flex-row flex-wrap gap-2 mb-6">
                 <TouchableOpacity
-                  className={`px-3 py-2 rounded-xl border ${!selectedIndustry ? "bg-slate-900 border-slate-900" : "border-slate-200"}`}
+                  className={`px-3 py-2 rounded-xl border ${!selectedIndustry ? "bg-black border-black" : "border-slate-200"}`}
                   onPress={() => setSelectedIndustry("")}
                 >
                   <Text className={`text-xs font-medium ${!selectedIndustry ? "text-white" : "text-slate-700"}`}>
@@ -561,7 +561,7 @@ export default function ExploreScreen() {
                 {industries.map((ind) => (
                   <TouchableOpacity
                     key={ind}
-                    className={`px-3 py-2 rounded-xl border ${selectedIndustry === ind ? "bg-slate-900 border-slate-900" : "border-slate-200"}`}
+                    className={`px-3 py-2 rounded-xl border ${selectedIndustry === ind ? "bg-black border-black" : "border-slate-200"}`}
                     onPress={() => setSelectedIndustry(ind)}
                   >
                     <Text className={`text-xs font-medium ${selectedIndustry === ind ? "text-white" : "text-slate-700"}`}>
@@ -576,7 +576,7 @@ export default function ExploreScreen() {
               </Text>
               <View className="flex-row flex-wrap gap-2 mb-8">
                 <TouchableOpacity
-                  className={`px-3 py-2 rounded-xl border ${!selectedStage ? "bg-slate-900 border-slate-900" : "border-slate-200"}`}
+                  className={`px-3 py-2 rounded-xl border ${!selectedStage ? "bg-black border-black" : "border-slate-200"}`}
                   onPress={() => setSelectedStage("")}
                 >
                   <Text className={`text-xs font-medium ${!selectedStage ? "text-white" : "text-slate-700"}`}>
@@ -586,7 +586,7 @@ export default function ExploreScreen() {
                 {stages.map((stage) => (
                   <TouchableOpacity
                     key={stage}
-                    className={`px-3 py-2 rounded-xl border ${selectedStage === stage ? "bg-slate-900 border-slate-900" : "border-slate-200"}`}
+                    className={`px-3 py-2 rounded-xl border ${selectedStage === stage ? "bg-black border-black" : "border-slate-200"}`}
                     onPress={() => setSelectedStage(stage)}
                   >
                     <Text className={`text-xs font-medium ${selectedStage === stage ? "text-white" : "text-slate-700"}`}>
@@ -597,7 +597,7 @@ export default function ExploreScreen() {
               </View>
 
               <TouchableOpacity
-                className="bg-slate-900 rounded-2xl py-4 items-center"
+                className="bg-black rounded-2xl py-4 items-center"
                 onPress={() => {
                   setFilterModalVisible(false);
                   fetchItems();

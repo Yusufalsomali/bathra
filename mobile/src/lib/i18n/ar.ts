@@ -138,6 +138,7 @@ export const ar = {
     readMore: "اقرأ المزيد",
     minRead: "دقيقة للقراءة",
     views: "مشاهدة",
+    all: "الكل",
     allCategories: "الكل",
     news: "أخبار",
     industry_insights: "رؤى القطاع",

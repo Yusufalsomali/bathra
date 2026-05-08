@@ -46,7 +46,7 @@ function SettingsRow({
       >
         <IconComponent
           size={18}
-          color={destructive ? "#ef4444" : "#0f172a"}
+          color={destructive ? "#ef4444" : "#000000"}
           strokeWidth={1.5}
         />
       </View>
@@ -107,13 +107,13 @@ export default function SettingsScreen() {
         {/* Account info */}
         <View className="bg-white px-4 py-5 mb-4 border-b border-slate-100 border-t">
           <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-            <View className="w-14 h-14 rounded-full bg-slate-900 items-center justify-center mr-3">
+            <View className="w-14 h-14 rounded-full bg-black items-center justify-center mr-3">
               <Text className="text-white text-xl font-black">
                 {(user?.name || "?")[0].toUpperCase()}
               </Text>
             </View>
             <View className={`flex-1 ${isRTL ? "items-end ml-0 mr-3" : "items-start"}`}>
-              <Text className="font-bold text-slate-900 text-base">{user?.name}</Text>
+              <Text className="font-bold text-black text-base">{user?.name}</Text>
               <Text className="text-slate-500 text-xs mt-0.5">{user?.email}</Text>
               <Text className="text-slate-400 text-xs mt-0.5 capitalize">
                 {user?.accountType}

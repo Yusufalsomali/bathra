@@ -72,7 +72,7 @@ function NotificationItem({
       <View className={`flex-1 ${isRTL ? "mr-3 ml-0" : ""}`}>
         <View className={`flex-row items-start justify-between mb-0.5 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Text
-            className={`font-semibold text-slate-900 flex-1 ${isRTL ? "text-right" : "text-left"}`}
+            className={`font-semibold text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
             numberOfLines={1}
           >
             {item.title}
@@ -154,9 +154,9 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className={`px-4 pt-14 pb-4 border-b border-slate-100 flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
+      <View className={`px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
         <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-          <Text className={`text-2xl font-black text-slate-900 ${isRTL ? "mr-0 ml-2" : "mr-2"}`}>
+          <Text className={`text-xl font-black text-black ${isRTL ? "mr-0 ml-2" : "mr-2"}`}>
             {t("notifications.title")}
           </Text>
           {unreadCount > 0 && (

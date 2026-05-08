@@ -38,7 +38,7 @@ export function Input({
       )}
       <View className="relative">
         <TextInput
-          className={`bg-slate-50 border ${error ? "border-red-400" : "border-slate-200"} rounded-xl px-4 py-3.5 text-slate-900 text-base`}
+          className={`bg-slate-50 border ${error ? "border-red-400" : "border-slate-200"} rounded-xl px-4 py-3.5 text-black text-base`}
           placeholderTextColor="#94a3b8"
           textAlign={isRTL ? "right" : "left"}
           secureTextEntry={isPassword && !showPassword}

@@ -117,7 +117,7 @@ export default function PitchDeckScreen() {
       <View className="flex-1 px-4 pt-6">
         {loading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#0f172a" />
+            <ActivityIndicator size="large" color="#000000" />
           </View>
         ) : (
           <>
@@ -128,7 +128,7 @@ export default function PitchDeckScreen() {
                     <FileText size={24} stroke="#ef4444" strokeWidth={1.5} />
                   </View>
                   <View className="flex-1">
-                    <Text className={`font-bold text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+                    <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
                       Pitch Deck
                     </Text>
                     <Text className={`text-xs text-slate-400 ${isRTL ? "text-right" : "text-left"}`}>

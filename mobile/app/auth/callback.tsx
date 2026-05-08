@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { useEffect, useState, useContext } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { I18nContext } from "@/context/i18n-context";
 import * as Linking from "expo-linking";
 import { supabase } from "@/lib/supabase/client";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export default function AuthCallbackScreen() {
   const router = useRouter();
+  const { t } = useContext(I18nContext);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -44,7 +46,10 @@ export default function AuthCallbackScreen() {
   if (error) {
     return (
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-red-500 text-center">{error}</Text>
+        <Text className="text-red-500 text-center mb-6">{error}</Text>
+        <TouchableOpacity onPress={() => router.replace("/")} accessibilityRole="button">
+          <Text className="text-slate-700 font-semibold">{t("common.back")}</Text>
+        </TouchableOpacity>
       </View>
     );
   }

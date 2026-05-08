@@ -95,7 +95,7 @@ export default function StartupDetailScreen() {
           <View className={`flex-row items-center mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={startup.startup_name || startup.name} uri={startup.logo} size={64} />
             <View className={`flex-1 ${isRTL ? "mr-4" : "ml-4"}`}>
-              <Text className={`text-xl font-black text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
                 {startup.startup_name || startup.name}
               </Text>
               <Text className={`text-slate-500 text-sm ${isRTL ? "text-right" : "text-left"}`}>
@@ -112,7 +112,7 @@ export default function StartupDetailScreen() {
         <View className="px-4 pt-4">
           {/* Problem & Solution */}
           <Card className="mb-3">
-            <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
               Problem & Solution
             </Text>
             <InfoRow label={t("profile.problem")} value={startup.problem_solving} isRTL={isRTL} />
@@ -122,7 +122,7 @@ export default function StartupDetailScreen() {
 
           {/* Financials */}
           <Card className="mb-3">
-            <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
               Financials
             </Text>
             <InfoRow label={t("profile.capitalSeeking")} value={startup.capital_seeking ? `${startup.capital_seeking.toLocaleString()} SAR` : undefined} isRTL={isRTL} />
@@ -133,7 +133,7 @@ export default function StartupDetailScreen() {
 
           {/* Team */}
           <Card className="mb-3">
-            <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>Team</Text>
+            <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>Team</Text>
             <InfoRow label={t("profile.teamSize")} value={startup.team_size} isRTL={isRTL} />
             <InfoRow label={t("profile.exitStrategy")} value={startup.exit_strategy} isRTL={isRTL} />
           </Card>
@@ -141,13 +141,13 @@ export default function StartupDetailScreen() {
           {/* Links */}
           {(startup.website || startup.calendly_link) && (
             <Card className="mb-3">
-              <Text className={`font-bold text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>Links</Text>
+              <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>Links</Text>
               {startup.website && (
                 <TouchableOpacity
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(startup.website!)}
                 >
-                  <Globe size={16} stroke="#0f172a" strokeWidth={1.5} />
+                  <Globe size={16} stroke="#000000" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">{startup.website}</Text>
                 </TouchableOpacity>
               )}
@@ -156,7 +156,7 @@ export default function StartupDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(startup.calendly_link!)}
                 >
-                  <Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />
+                  <Calendar size={16} stroke="#000000" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">Book a meeting</Text>
                 </TouchableOpacity>
               )}

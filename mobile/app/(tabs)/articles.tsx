@@ -59,7 +59,7 @@ function ArticleCard({
           {item.is_featured && <Badge label="Featured" variant="warning" />}
         </View>
         <Text
-          className={`font-bold text-slate-900 text-base mb-1 leading-5 ${isRTL ? "text-right" : "text-left"}`}
+          className={`font-bold text-black text-base mb-1 leading-5 ${isRTL ? "text-right" : "text-left"}`}
           numberOfLines={2}
         >
           {item.title}
@@ -124,8 +124,8 @@ export default function ArticlesScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-white px-4 pt-14 pb-0 border-b border-slate-100">
-        <Text className={`text-2xl font-black text-slate-900 mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+      <View className="bg-white px-4 pt-3 pb-0 border-b border-slate-100">
+        <Text className={`text-xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}>
           {t("articles.title")}
         </Text>
         {/* Category filter */}
@@ -139,7 +139,7 @@ export default function ArticlesScreen() {
               key={cat}
               onPress={() => setCategory(cat)}
               className={`mr-2 px-3 py-1.5 rounded-full ${
-                category === cat ? "bg-slate-900" : "bg-slate-100"
+                category === cat ? "bg-black" : "bg-slate-100"
               }`}
             >
               <Text

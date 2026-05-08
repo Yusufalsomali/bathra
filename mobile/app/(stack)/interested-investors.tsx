@@ -69,7 +69,7 @@ function InvestorDetailModal({
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <SafeAreaView className="flex-1 bg-white">
         <View className={`flex-row items-center justify-between px-4 py-4 border-b border-slate-100 ${isRTL ? "flex-row-reverse" : ""}`}>
-          <Text className="font-black text-slate-900 text-lg">{investor.name}</Text>
+          <Text className="font-black text-black text-lg">{investor.name}</Text>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
             <X size={24} stroke="#64748b" strokeWidth={1.5} />
           </TouchableOpacity>
@@ -80,7 +80,7 @@ function InvestorDetailModal({
           <View className={`flex-row items-center mb-6 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={investor.name} size={56} />
             <View className={`flex-1 ${isRTL ? "mr-4 items-end" : "ml-4"}`}>
-              <Text className="font-bold text-slate-900 text-base">{investor.name}</Text>
+              <Text className="font-bold text-black text-base">{investor.name}</Text>
               {investor.role && (
                 <Text className="text-slate-500 text-sm">
                   {investor.role}{investor.company ? ` · ${investor.company}` : ""}
@@ -94,7 +94,7 @@ function InvestorDetailModal({
 
           {/* Contact info */}
           <View className="bg-blue-50 rounded-2xl p-4 mb-4 border border-blue-100">
-            <Text className={`font-bold text-slate-900 text-sm mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black text-sm mb-3 ${isRTL ? "text-right" : "text-left"}`}>
               {t("interestedInvestors.contactInfo")}
             </Text>
             <View className="space-y-3">
@@ -104,7 +104,7 @@ function InvestorDetailModal({
                 activeOpacity={0.7}
               >
                 <View className="w-8 h-8 bg-white rounded-lg items-center justify-center mr-3">
-                  <Mail size={16} stroke="#0f172a" strokeWidth={1.5} />
+                  <Mail size={16} stroke="#000000" strokeWidth={1.5} />
                 </View>
                 <Text className="text-blue-600 text-sm font-medium flex-1" numberOfLines={1}>
                   {investor.email}
@@ -118,7 +118,7 @@ function InvestorDetailModal({
                   activeOpacity={0.7}
                 >
                   <View className="w-8 h-8 bg-white rounded-lg items-center justify-center mr-3">
-                    <Phone size={16} stroke="#0f172a" strokeWidth={1.5} />
+                    <Phone size={16} stroke="#000000" strokeWidth={1.5} />
                   </View>
                   <Text className="text-blue-600 text-sm font-medium">{investor.phone}</Text>
                 </TouchableOpacity>
@@ -131,7 +131,7 @@ function InvestorDetailModal({
                   activeOpacity={0.7}
                 >
                   <View className="w-8 h-8 bg-white rounded-lg items-center justify-center mr-3">
-                    <Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />
+                    <Calendar size={16} stroke="#000000" strokeWidth={1.5} />
                   </View>
                   <Text className="text-blue-600 text-sm font-medium">Book a time slot</Text>
                 </TouchableOpacity>
@@ -144,7 +144,7 @@ function InvestorDetailModal({
                   activeOpacity={0.7}
                 >
                   <View className="w-8 h-8 bg-white rounded-lg items-center justify-center mr-3">
-                    <Link2 size={16} stroke="#0f172a" strokeWidth={1.5} />
+                    <Link2 size={16} stroke="#000000" strokeWidth={1.5} />
                   </View>
                   <Text className="text-blue-600 text-sm font-medium">LinkedIn Profile</Text>
                 </TouchableOpacity>
@@ -154,7 +154,7 @@ function InvestorDetailModal({
 
           {/* Investment preferences */}
           <View className="bg-white rounded-2xl p-4 mb-4 border border-slate-100">
-            <Text className={`font-bold text-slate-900 text-sm mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black text-sm mb-3 ${isRTL ? "text-right" : "text-left"}`}>
               {t("interestedInvestors.investmentPrefs")}
             </Text>
             <View className="space-y-2">
@@ -188,7 +188,7 @@ function InvestorDetailModal({
           {/* Location */}
           {(investor.city || investor.country) && (
             <View className="bg-white rounded-2xl p-4 mb-4 border border-slate-100">
-              <Text className={`font-bold text-slate-900 text-sm mb-2 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`font-bold text-black text-sm mb-2 ${isRTL ? "text-right" : "text-left"}`}>
                 {t("interestedInvestors.location")}
               </Text>
               <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
@@ -212,7 +212,7 @@ function InvestorDetailModal({
                 title={t("interestedInvestors.scheduleCall")}
                 variant="outline"
                 onPress={() => openLink(investor.calendly_link!)}
-                icon={<Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />}
+                icon={<Calendar size={16} stroke="#000000" strokeWidth={1.5} />}
               />
             )}
           </View>
@@ -239,7 +239,7 @@ function InvestorCard({
         <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Avatar name={item.name} size={44} />
           <View className={`flex-1 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
-            <Text className="font-bold text-slate-900">{item.name}</Text>
+            <Text className="font-bold text-black">{item.name}</Text>
             {item.role && (
               <Text className="text-xs text-slate-500">
                 {item.role}{item.company ? ` · ${item.company}` : ""}
@@ -271,7 +271,7 @@ function InvestorCard({
 
         <View className={`flex-row mt-3 gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
           <TouchableOpacity
-            className="flex-1 bg-slate-900 rounded-xl py-2 items-center"
+            className="flex-1 bg-black rounded-xl py-2 items-center"
             onPress={onPress}
             activeOpacity={0.8}
           >
@@ -352,12 +352,12 @@ export default function InterestedInvestorsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-white px-4 pt-4 pb-4 border-b border-slate-100">
+      <View className="bg-white px-4 pt-2 pb-2 border-b border-slate-100">
         <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
           <TouchableOpacity onPress={() => router.back()} className="mr-3" activeOpacity={0.7}>
-            {isRTL ? <ChevronRight size={24} stroke="#0f172a" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#0f172a" strokeWidth={1.5} />}
+            {isRTL ? <ChevronRight size={24} stroke="#000000" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#000000" strokeWidth={1.5} />}
           </TouchableOpacity>
-          <Text className={`text-xl font-black text-slate-900 flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`text-lg font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
             {t("interestedInvestors.title")}
           </Text>
           {investors.length > 0 && (

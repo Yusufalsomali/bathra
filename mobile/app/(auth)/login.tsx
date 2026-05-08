@@ -62,7 +62,7 @@ export default function LoginScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 px-6 pt-14 pb-10">
+          <View className="flex-1 px-6 pt-5 pb-10">
             {/* Header */}
             <TouchableOpacity
               className="mb-8"
@@ -72,7 +72,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <Text
-              className={`text-3xl font-black text-slate-900 mb-1 ${isRTL ? "text-right" : "text-left"}`}
+              className={`text-2xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
             >
               {t("auth.welcomeBack")}
             </Text>
@@ -123,7 +123,7 @@ export default function LoginScreen() {
             <View className="flex-row justify-center items-center">
               <Text className="text-slate-500">{t("auth.noAccount")} </Text>
               <TouchableOpacity onPress={() => Linking.openURL(SIGNUP_URL)}>
-                <Text className="text-slate-900 font-semibold">{t("auth.createAccount")}</Text>
+                <Text className="text-black font-semibold">{t("auth.createAccount")}</Text>
               </TouchableOpacity>
             </View>
           </View>

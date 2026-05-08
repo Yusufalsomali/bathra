@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -19,7 +20,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonCard } from "@/components/ui/Skeleton";
-import { Clock, GitMerge } from "lucide-react-native";
+import { Clock, GitMerge, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 function MatchCard({
   item,
@@ -46,7 +47,7 @@ function MatchCard({
         <View className={`flex-row items-center flex-1 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Avatar name={matchedName} size={44} />
           <View className={`flex-1 ${isRTL ? "mr-3" : "ml-3"}`}>
-            <Text className={`font-bold text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+            <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
               {matchedName}
             </Text>
             <Text className={`text-xs text-slate-500 ${isRTL ? "text-right" : "text-left"}`}>
@@ -97,9 +98,15 @@ function MatchCard({
 }
 
 export default function MatchmakingScreen() {
+  const router = useRouter();
   const { user } = useAuth();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
 
   const [matches, setMatches] = useState<Matchmaking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,8 +151,15 @@ export default function MatchmakingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="bg-white px-4 pt-14 pb-4 border-b border-slate-100">
-        <Text className={`text-2xl font-black text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+      <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+        <TouchableOpacity onPress={goBack} hitSlop={12} className={isRTL ? "pl-2" : "pr-2"} accessibilityRole="button" accessibilityLabel={t("common.back")}>
+          {isRTL ? (
+            <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+          ) : (
+            <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+          )}
+        </TouchableOpacity>
+        <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
           {t("matchmaking.title")}
         </Text>
       </View>

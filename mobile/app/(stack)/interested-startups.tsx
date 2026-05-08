@@ -117,12 +117,12 @@ export default function InterestedStartupsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-white px-4 pt-4 pb-4 border-b border-slate-100">
+      <View className="bg-white px-4 pt-2 pb-2 border-b border-slate-100">
         <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
           <TouchableOpacity onPress={() => router.back()} className="mr-3" activeOpacity={0.7}>
-            {isRTL ? <ChevronRight size={24} stroke="#0f172a" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#0f172a" strokeWidth={1.5} />}
+            {isRTL ? <ChevronRight size={24} stroke="#000000" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#000000" strokeWidth={1.5} />}
           </TouchableOpacity>
-          <Text className={`text-xl font-black text-slate-900 flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`text-lg font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
             {t("interestedStartups.title")}
           </Text>
         </View>
@@ -184,7 +184,7 @@ export default function InterestedStartupsScreen() {
               <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
                 <Avatar name={item.startup_name || item.name} uri={item.logo} size={44} />
                 <View className={`flex-1 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
-                  <Text className="font-bold text-slate-900">{item.startup_name || item.name}</Text>
+                  <Text className="font-bold text-black">{item.startup_name || item.name}</Text>
                   <View className="flex-row gap-1 mt-1">
                     {item.stage && <Badge label={item.stage} variant="info" />}
                     <Badge label={item.industry} variant="default" />
@@ -209,7 +209,7 @@ export default function InterestedStartupsScreen() {
 
             <View className={`flex-row gap-2 mt-3 ${isRTL ? "flex-row-reverse" : ""}`}>
               <TouchableOpacity
-                className="flex-1 bg-slate-900 rounded-xl py-2.5 items-center"
+                className="flex-1 bg-black rounded-xl py-2.5 items-center"
                 onPress={() =>
                   router.push({ pathname: "/(stack)/startup/[id]", params: { id: item.id } })
                 }
