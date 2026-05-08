@@ -1,0 +1,32 @@
+{
+  "cli": {
+    "version": ">= 14.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://<project>.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "<anon-key>"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://<project>.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "<anon-key>"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://<project>.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "<anon-key>"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
