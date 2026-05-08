@@ -118,7 +118,7 @@ export default function ConnectionsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       {loading ? (
         <View className="p-4">
           {[1, 2, 3].map((k) => <SkeletonCard key={k} />)}

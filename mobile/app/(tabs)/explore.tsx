@@ -425,7 +425,7 @@ export default function ExploreScreen() {
   const hasActiveFilters = !isStartup && (selectedIndustry || selectedStage);
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="bg-white px-4 pt-14 pb-4 border-b border-slate-100">
         <View className={`flex-row items-center justify-between mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>

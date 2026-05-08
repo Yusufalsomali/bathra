@@ -10,6 +10,7 @@ export default function StackLayout() {
         headerTintColor: "#0f172a",
         headerShadowVisible: false,
         headerTitleStyle: { fontWeight: "700", fontSize: 17 },
+        contentStyle: { backgroundColor: "#ffffff" },
       }}
     >
       <Stack.Screen name="profile" options={{ title: "Profile" }} />

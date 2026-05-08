@@ -41,9 +41,9 @@ function StatCard({
     <Card className="flex-1 mx-1">
       <View className="items-center">
         <View className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center mb-2">
-          <IconComponent size={20} color="#0f172a" strokeWidth={1.5} />
+          <IconComponent size={20} color="#000000" strokeWidth={1.5} />
         </View>
-        <Text className="text-xl font-black text-slate-900">{value}</Text>
+        <Text className="text-xl font-black text-black">{value}</Text>
         <Text className="text-xs text-slate-500 text-center mt-0.5">{label}</Text>
       </View>
     </Card>
@@ -65,7 +65,7 @@ function QuickAction({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <IconComponent size={22} color="#0f172a" strokeWidth={1.5} />
+      <IconComponent size={22} color="#000000" strokeWidth={1.5} />
       <Text className="text-xs font-medium text-slate-700 text-center mt-1.5">{label}</Text>
     </TouchableOpacity>
   );
@@ -142,7 +142,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
   const { profile, interestedCount, daysSinceRegistration, pendingOffers } = data;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
@@ -157,7 +157,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="bg-slate-900 px-6 pt-14 pb-8">
+        <View className="bg-black px-6 pt-14 pb-8">
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
@@ -203,7 +203,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
           {/* Status card */}
           <Card className="mb-4">
             <View className={`flex-row items-center mb-1 ${isRTL ? "flex-row-reverse" : ""}`}>
-              <Text className={`font-bold text-slate-900 flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`font-bold text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
                 {profile?.startup_name || profile?.name || user?.name}
               </Text>
             </View>
@@ -221,14 +221,14 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
                 <View className="w-12 h-12 bg-green-500 rounded-full items-center justify-center mb-3">
                   <Heart size={22} stroke="white" strokeWidth={1.5} />
                 </View>
-                <Text className="text-xl font-black text-slate-900 mb-1">
+                <Text className="text-xl font-black text-black mb-1">
                   {t("dashboard.greatNews")}
                 </Text>
                 <Text className="text-slate-500 text-sm text-center mb-4">
                   {interestedCount} {t("dashboard.interestedInvestorsCount")}
                 </Text>
                 <TouchableOpacity
-                  className="bg-slate-900 rounded-xl px-5 py-3 flex-row items-center"
+                  className="bg-black rounded-xl px-5 py-3 flex-row items-center"
                   onPress={() => router.push("/(stack)/interested-investors" as Href)}
                   activeOpacity={0.8}
                 >
@@ -243,7 +243,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
                 <View className="w-12 h-12 bg-amber-500 rounded-full items-center justify-center mb-3">
                   <Clock size={22} stroke="white" strokeWidth={1.5} />
                 </View>
-                <Text className="font-bold text-slate-900 mb-1 text-center">
+                <Text className="font-bold text-black mb-1 text-center">
                   {t("dashboard.noMatchFound")}
                 </Text>
                 <Text className="text-slate-500 text-sm text-center mb-4">
@@ -262,9 +262,9 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
             ) : (
               <View className="items-center py-2">
                 <View className="w-12 h-12 bg-slate-100 rounded-full items-center justify-center mb-3">
-                  <GitMerge size={22} stroke="#0f172a" strokeWidth={1.5} />
+                  <GitMerge size={22} stroke="#000000" strokeWidth={1.5} />
                 </View>
-                <Text className="font-bold text-slate-900 mb-1">{t("matchmaking.title")}</Text>
+                <Text className="font-bold text-black mb-1">{t("matchmaking.title")}</Text>
                 <Text className="text-slate-500 text-sm text-center">
                   {t("matchmaking.noMatchesDesc")}
                 </Text>
@@ -394,7 +394,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
   const { profile, wallet, availableStartups, recentStartups } = data;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
@@ -409,7 +409,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="bg-slate-900 px-6 pt-14 pb-8">
+        <View className="bg-black px-6 pt-14 pb-8">
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
@@ -430,7 +430,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
             </Text>
             <View className="flex-row mb-4">
               <View className="flex-1 items-center">
-                <Text className="text-lg font-black text-slate-900">
+                <Text className="text-lg font-black text-black">
                   {wallet ? wallet.available_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.availableBalance")}</Text>
@@ -449,7 +449,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
               </View>
             </View>
             <TouchableOpacity
-              className="bg-slate-900 rounded-xl py-3 items-center"
+              className="bg-black rounded-xl py-3 items-center"
               onPress={() => router.push("/(stack)/portfolio" as Href)}
               activeOpacity={0.8}
             >
@@ -474,7 +474,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
           {/* Startup discovery */}
           <Card className="mb-4">
             <View className={`flex-row items-center justify-between mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
-              <Text className={`font-bold text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
                 {availableStartups > 0
                   ? `${availableStartups} ${t("dashboard.availableStartups")}`
                   : "Startup Discovery"}
@@ -492,7 +492,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
                   >
                     <Avatar name={s.startup_name || s.name} size={36} />
                     <View className={`flex-1 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
-                      <Text className="font-semibold text-slate-900 text-sm">{s.startup_name || s.name}</Text>
+                      <Text className="font-semibold text-black text-sm">{s.startup_name || s.name}</Text>
                       <Text className="text-xs text-slate-500">{s.industry}</Text>
                     </View>
                     <Badge label={s.stage} variant="info" />

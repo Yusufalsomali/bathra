@@ -88,7 +88,7 @@ export default function StartupDetailScreen() {
   const isInvestor = user?.accountType === "investor";
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">

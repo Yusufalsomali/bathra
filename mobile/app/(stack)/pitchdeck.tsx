@@ -113,7 +113,7 @@ export default function PitchDeckScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 px-4 pt-6">
         {loading ? (
           <View className="flex-1 items-center justify-center">

@@ -1,6 +1,7 @@
 import { Tabs, Redirect } from "expo-router";
 import { useContext } from "react";
 import { Home, Compass, GitMerge, Newspaper, Bell } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth, useRouteUser } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
@@ -9,6 +10,9 @@ export default function TabsLayout() {
   const { isLoading } = useAuth();
   const routeUser = useRouteUser();
   const { t } = useContext(I18nContext);
+  const { bottom: tabBarBottomInset } = useSafeAreaInsets();
+  const tabBarPaddingBottom = 8 + tabBarBottomInset;
+  const tabBarHeight = 64 + tabBarBottomInset;
 
   if (isLoading) return <LoadingScreen />;
   if (!routeUser) return <Redirect href="/(auth)" />;
@@ -23,8 +27,8 @@ export default function TabsLayout() {
           borderTopColor: "#f1f5f9",
           borderTopWidth: 1,
           paddingTop: 8,
-          paddingBottom: 8,
-          height: 64,
+          paddingBottom: tabBarPaddingBottom,
+          height: tabBarHeight,
         },
         tabBarActiveTintColor: "#000000",
         tabBarInactiveTintColor: "#94a3b8",

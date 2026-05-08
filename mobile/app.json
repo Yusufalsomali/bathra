@@ -4,7 +4,7 @@
     "slug": "bathra",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-logo.png",
     "scheme": "bathra",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,

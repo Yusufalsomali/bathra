@@ -115,7 +115,7 @@ export default function InterestedStartupsScreen() {
   const uniqueIndustries = new Set(startups.map((s) => s.industry)).size;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="bg-white px-4 pt-4 pb-4 border-b border-slate-100">
         <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>

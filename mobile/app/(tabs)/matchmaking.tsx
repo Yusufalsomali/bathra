@@ -143,7 +143,7 @@ export default function MatchmakingScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="bg-white px-4 pt-14 pb-4 border-b border-slate-100">
         <Text className={`text-2xl font-black text-slate-900 ${isRTL ? "text-right" : "text-left"}`}>
           {t("matchmaking.title")}

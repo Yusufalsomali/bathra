@@ -102,7 +102,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Account info */}
         <View className="bg-white px-4 py-5 mb-4 border-b border-slate-100 border-t">

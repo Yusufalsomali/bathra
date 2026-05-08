@@ -137,7 +137,7 @@ export default function ProfileScreen() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"

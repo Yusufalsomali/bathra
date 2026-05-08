@@ -39,7 +39,12 @@ export default function RootLayout() {
         <I18nProvider>
           <AuthProvider>
             <StatusBar style="dark" />
-            <Stack screenOptions={{ headerShown: false }} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "#ffffff" },
+              }}
+            />
           </AuthProvider>
         </I18nProvider>
       </SafeAreaProvider>

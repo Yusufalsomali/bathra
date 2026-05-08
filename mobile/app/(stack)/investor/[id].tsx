@@ -55,7 +55,7 @@ export default function InvestorDetailScreen() {
   if (loading || !investor) return <LoadingScreen />;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">
