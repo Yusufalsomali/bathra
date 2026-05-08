@@ -1,12 +1,12 @@
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useContext } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/auth-context";

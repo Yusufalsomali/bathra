@@ -2,11 +2,11 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   Linking,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext } from "react";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useAuth } from "@/context/auth-context";

@@ -2,12 +2,12 @@ import {
   View,
   Text,
   FlatList,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   RefreshControl,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { I18nContext } from "@/context/i18n-context";

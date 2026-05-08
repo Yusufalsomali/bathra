@@ -2,7 +2,6 @@ import {
   View,
   Text,
   FlatList,
-  SafeAreaView,
   TouchableOpacity,
   TextInput,
   RefreshControl,
@@ -10,6 +9,7 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "expo-router";

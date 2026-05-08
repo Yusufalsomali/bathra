@@ -1,12 +1,12 @@
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
   Linking,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";

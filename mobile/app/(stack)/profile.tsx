@@ -2,7 +2,6 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
@@ -10,6 +9,7 @@ import {
   Switch,
   TextInput,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";

@@ -2,10 +2,10 @@ import {
   View,
   Text,
   FlatList,
-  SafeAreaView,
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "expo-router";

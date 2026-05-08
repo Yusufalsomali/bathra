@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "@/context/auth-context";
 import { I18nProvider } from "@/context/i18n-context";
 import {
@@ -34,12 +35,14 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView className="flex-1 font-sora" style={{ flex: 1 }}>
-      <I18nProvider>
-        <AuthProvider>
-          <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }} />
-        </AuthProvider>
-      </I18nProvider>
+      <SafeAreaProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <StatusBar style="dark" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </AuthProvider>
+        </I18nProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
