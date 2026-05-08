@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useContext } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -41,7 +41,11 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email.trim(), password);
-      router.replace("/");
+      // Defer navigation so SecureStore persistence + context updates are visible
+      // to the next screen (avoids flash back to splash when user was still null).
+      requestAnimationFrame(() => {
+        router.replace("/" as Href);
+      });
     } catch {
       Alert.alert(t("common.error"), t("auth.loginFailed"));
     } finally {
