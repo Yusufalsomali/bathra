@@ -44,11 +44,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email.trim(), password);
-      // Defer navigation so SecureStore persistence + context updates are visible
-      // to the next screen (avoids flash back to splash when user was still null).
-      requestAnimationFrame(() => {
-        router.replace("/" as Href);
-      });
+      router.replace("/" as Href);
     } catch {
       Alert.alert(t("common.error"), t("auth.loginFailed"));
     } finally {

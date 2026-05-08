@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { AppUser, AccountType } from "@/types/database";
@@ -18,6 +19,8 @@ interface SignUpCredentials {
 
 interface AuthContextValue {
   user: AppUser | null;
+  /** Sync mirror of `user`, updated in signIn before setState so route guards see the session immediately */
+  routeUserRef: React.MutableRefObject<AppUser | null>;
   session: Session | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -30,8 +33,11 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
 }
 
+const routeUserRefFallback: React.MutableRefObject<AppUser | null> = { current: null };
+
 const AuthContext = createContext<AuthContextValue>({
   user: null,
+  routeUserRef: routeUserRefFallback,
   session: null,
   isLoading: true,
   signIn: async () => {},
@@ -48,6 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const routeUserRef = useRef<AppUser | null>(null);
+
+  useEffect(() => {
+    routeUserRef.current = user;
+  }, [user]);
 
   const buildAppUser = useCallback(async (supabaseUser: { id: string; email?: string; user_metadata?: Record<string, unknown>; created_at: string }): Promise<AppUser | null> => {
     if (!supabaseUser) return null;
@@ -158,9 +169,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     if (error) throw error;
+    await supabase.auth.getSession();
     if (data.session) setSession(data.session);
     if (data.user) {
       const appUser = await buildAppUser(data.user);
+      routeUserRef.current = appUser;
       setUser(appUser);
     }
   }, [buildAppUser]);
@@ -202,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    routeUserRef.current = null;
     setUser(null);
     setSession(null);
   }, []);
@@ -222,6 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        routeUserRef,
         session,
         isLoading,
         signIn,
@@ -241,4 +256,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+/** Use for redirects/guards right after login — React context may lag one frame behind SecureStore/session */
+export function useRouteUser() {
+  const { user, routeUserRef } = useAuth();
+  return user ?? routeUserRef.current;
 }

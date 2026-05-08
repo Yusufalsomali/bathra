@@ -1,17 +1,18 @@
 import { Tabs, Redirect } from "expo-router";
 import { useContext } from "react";
 import { Home, Compass, GitMerge, Newspaper, Bell } from "lucide-react-native";
-import { useAuth } from "@/context/auth-context";
+import { useAuth, useRouteUser } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export default function TabsLayout() {
-  const { user, isLoading } = useAuth();
+  const { isLoading } = useAuth();
+  const routeUser = useRouteUser();
   const { t } = useContext(I18nContext);
 
   if (isLoading) return <LoadingScreen />;
-  if (!user) return <Redirect href="/(auth)" />;
-  if (user.status !== "approved") return <Redirect href="/(auth)/pending" />;
+  if (!routeUser) return <Redirect href="/(auth)" />;
+  if (routeUser.status !== "approved") return <Redirect href="/(auth)/pending" />;
 
   return (
     <Tabs

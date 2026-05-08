@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
+import { BathraLogoMark } from "@/components/branding/BathraLogoMark";
 
 const SIGNUP_URL = "https://bathra-ten.vercel.app/signup";
 
@@ -24,10 +25,7 @@ export default function WelcomeScreen() {
 
         {/* Branding */}
         <View className="items-center mb-14">
-          <View className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 items-center justify-center mb-4">
-            <Text className="text-slate-900 font-black text-2xl">B</Text>
-          </View>
-          <Text className="text-slate-900 text-2xl font-black tracking-tight">Bathra</Text>
+          <BathraLogoMark width={260} className="mb-4" />
           <Text className="text-slate-600 text-sm mt-1 text-center">
             {isRTL
               ? "منصة ربط رواد الأعمال بالمستثمرين"
@@ -38,7 +36,7 @@ export default function WelcomeScreen() {
         {/* Buttons */}
         <View className="gap-4">
           <TouchableOpacity
-            className="bg-slate-900 rounded-2xl py-4 items-center"
+            className="bg-black rounded-2xl py-4 items-center"
             activeOpacity={0.85}
             onPress={() => router.push("/(auth)/login")}
           >
