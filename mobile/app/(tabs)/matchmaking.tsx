@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
-import { useRouter, Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -20,18 +20,20 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonCard } from "@/components/ui/Skeleton";
-import { Clock, GitMerge, ChevronLeft, ChevronRight } from "lucide-react-native";
+import { Clock, GitMerge } from "lucide-react-native";
 
 function MatchCard({
   item,
   userId,
   onToggleInterest,
+  onOpenDetail,
   isRTL,
   t,
 }: {
   item: Matchmaking;
   userId: string;
   onToggleInterest: (id: string, current: boolean) => void;
+  onOpenDetail: () => void;
   isRTL: boolean;
   t: (k: string) => string;
 }) {
@@ -43,7 +45,12 @@ function MatchCard({
 
   return (
     <Card className={`mb-3 ${isExpired ? "opacity-60" : ""}`}>
-      <View className={`flex-row items-start justify-between mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        activeOpacity={0.75}
+        onPress={onOpenDetail}
+        disabled={isExpired}
+        className={`flex-row items-start justify-between mb-3 ${isRTL ? "flex-row-reverse" : ""}`}
+      >
         <View className={`flex-row items-center flex-1 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Avatar name={matchedName} size={44} />
           <View className={`flex-1 ${isRTL ? "mr-3" : "ml-3"}`}>
@@ -59,7 +66,7 @@ function MatchCard({
           label={item.is_interested ? "Interested" : "Pending"}
           variant={item.is_interested ? "success" : "warning"}
         />
-      </View>
+      </TouchableOpacity>
 
       {item.comment && (
         <View className="bg-slate-50 rounded-xl p-3 mb-3">
@@ -103,9 +110,13 @@ export default function MatchmakingScreen() {
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
 
-  const goBack = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/(tabs)" as Href);
+  const openMatchDetail = (item: Matchmaking) => {
+    if (!user) return;
+    if (user.accountType === "investor") {
+      router.push({ pathname: "/(stack)/startup/[id]", params: { id: item.startup_id } });
+    } else {
+      router.push({ pathname: "/(stack)/investor/[id]", params: { id: item.investor_id } });
+    }
   };
 
   const [matches, setMatches] = useState<Matchmaking[]>([]);
@@ -151,15 +162,8 @@ export default function MatchmakingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-        <TouchableOpacity onPress={goBack} hitSlop={12} className={isRTL ? "pl-2" : "pr-2"} accessibilityRole="button" accessibilityLabel={t("common.back")}>
-          {isRTL ? (
-            <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
-          ) : (
-            <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
-          )}
-        </TouchableOpacity>
-        <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+      <View className="bg-white px-4 pt-3 pb-3 border-b border-slate-100">
+        <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
           {t("matchmaking.title")}
         </Text>
       </View>
@@ -192,6 +196,7 @@ export default function MatchmakingScreen() {
                 item={item}
                 userId={user?.id || ""}
                 onToggleInterest={handleToggleInterest}
+                onOpenDetail={() => openMatchDetail(item)}
                 isRTL={isRTL}
                 t={t}
               />

@@ -69,7 +69,7 @@ function InvestorDetailModal({
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <SafeAreaView className="flex-1 bg-white">
         <View className={`flex-row items-center justify-between px-4 py-4 border-b border-slate-100 ${isRTL ? "flex-row-reverse" : ""}`}>
-          <Text className="font-black text-black text-lg">{investor.name}</Text>
+          <Text className="font-black text-black text-xl">{investor.name}</Text>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
             <X size={24} stroke="#64748b" strokeWidth={1.5} />
           </TouchableOpacity>
@@ -357,7 +357,7 @@ export default function InterestedInvestorsScreen() {
           <TouchableOpacity onPress={() => router.back()} className="mr-3" activeOpacity={0.7}>
             {isRTL ? <ChevronRight size={24} stroke="#000000" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#000000" strokeWidth={1.5} />}
           </TouchableOpacity>
-          <Text className={`text-lg font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
             {t("interestedInvestors.title")}
           </Text>
           {investors.length > 0 && (

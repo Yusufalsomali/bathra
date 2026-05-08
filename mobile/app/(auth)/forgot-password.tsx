@@ -60,7 +60,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <Text
-            className={`text-2xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}
+            className={`text-xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}
           >
             {t("auth.resetPassword")}
           </Text>

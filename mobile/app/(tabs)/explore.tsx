@@ -540,7 +540,7 @@ export default function ExploreScreen() {
         >
           <SafeAreaView className="flex-1 bg-white">
             <View className={`flex-row items-center justify-between px-4 py-4 border-b border-slate-100 ${isRTL ? "flex-row-reverse" : ""}`}>
-              <Text className="font-black text-black text-lg">{t("common.filter")}</Text>
+              <Text className="font-black text-black text-xl">{t("common.filter")}</Text>
               <TouchableOpacity onPress={() => setFilterModalVisible(false)} activeOpacity={0.7}>
                 <X size={24} stroke="#64748b" strokeWidth={1.5} />
               </TouchableOpacity>

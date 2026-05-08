@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useContext } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -101,11 +101,34 @@ export default function SettingsScreen() {
     changeLocale(locale === "en" ? "ar" : "en");
   };
 
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+        <TouchableOpacity
+          onPress={goBack}
+          hitSlop={12}
+          className={isRTL ? "pl-2" : "pr-2"}
+          accessibilityRole="button"
+          accessibilityLabel={t("common.back")}
+        >
+          {isRTL ? (
+            <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+          ) : (
+            <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+          )}
+        </TouchableOpacity>
+        <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          {t("nav.settings")}
+        </Text>
+      </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Account info */}
-        <View className="bg-white px-4 py-5 mb-4 border-b border-slate-100 border-t">
+        <View className="bg-white px-4 py-5 mb-4 border-b border-slate-100">
           <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
             <View className="w-14 h-14 rounded-full bg-black items-center justify-center mr-3">
               <Text className="text-white text-xl font-black">

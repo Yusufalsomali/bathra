@@ -26,7 +26,7 @@ export default function NotConfiguredScreen() {
               <Text className="text-3xl">⚙️</Text>
             </View>
 
-            <Text className="text-white text-2xl font-black text-center mb-3">
+            <Text className="text-white text-xl font-black text-center mb-3">
               Configuration Required
             </Text>
             <Text className="text-slate-400 text-sm text-center leading-6 mb-8">

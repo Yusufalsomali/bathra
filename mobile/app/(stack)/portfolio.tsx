@@ -184,7 +184,7 @@ function AddFundsModal({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 items-center justify-center px-6">
         <View className="bg-white rounded-2xl p-6 w-full">
-          <Text className={`font-black text-black text-lg mb-4 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`font-black text-black text-xl mb-4 ${isRTL ? "text-right" : "text-left"}`}>
             {t("portfolio.addFundsTitle")}
           </Text>
           <TextInput
@@ -324,7 +324,7 @@ export default function PortfolioScreen() {
           <TouchableOpacity onPress={() => router.back()} className="mr-3" activeOpacity={0.7}>
             {isRTL ? <ChevronRight size={24} stroke="#000000" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#000000" strokeWidth={1.5} />}
           </TouchableOpacity>
-          <Text className={`text-lg font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
             {t("portfolio.title")}
           </Text>
         </View>

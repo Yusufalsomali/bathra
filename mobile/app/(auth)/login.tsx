@@ -72,7 +72,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <Text
-              className={`text-2xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
+              className={`text-xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
             >
               {t("auth.welcomeBack")}
             </Text>

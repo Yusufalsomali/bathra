@@ -83,7 +83,7 @@ export default function SignupScreen() {
             </View>
 
             <Text
-              className={`text-2xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
+              className={`text-xl font-black text-black mb-1 ${isRTL ? "text-right" : "text-left"}`}
             >
               {t("auth.createAccount")}
             </Text>

@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter, Href } from "expo-router";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { supabase } from "@/lib/supabase/client";
@@ -31,9 +31,14 @@ function InfoRow({ label, value, isRTL }: { label: string; value: string | numbe
 
 export default function InvestorDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const navigation = useNavigation();
+  const router = useRouter();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
 
   const [investor, setInvestor] = useState<Investor | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,24 +52,54 @@ export default function InvestorDetailScreen() {
       .then(({ data }: { data: unknown }) => {
         const investor = data as unknown as Investor;
         setInvestor(investor);
-        if (investor) navigation.setOptions({ title: investor.name });
         setLoading(false);
       });
-  }, [id, navigation]);
+  }, [id]);
 
-  if (loading || !investor) return <LoadingScreen />;
+  const headerTitle = investor ? investor.name : t("auth.investor");
+
+  const detailHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {headerTitle}
+      </Text>
+    </View>
+  );
+
+  if (loading || !investor) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        {detailHeader}
+        <LoadingScreen />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {detailHeader}
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {/* Hero */}
-        <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">
+        <View className="bg-white px-6 pt-4 pb-6 border-b border-slate-100">
           <View className={`flex-row items-center mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={investor.name} size={64} />
             <View className={`flex-1 ${isRTL ? "mr-4" : "ml-4"}`}>
-              <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
-                {investor.name}
-              </Text>
               <Text className={`text-slate-500 text-sm ${isRTL ? "text-right" : "text-left"}`}>
                 {investor.role}{investor.company ? ` · ${investor.company}` : ""}
               </Text>

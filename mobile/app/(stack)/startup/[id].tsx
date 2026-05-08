@@ -6,9 +6,9 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState, useEffect, useContext } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -33,10 +33,16 @@ function InfoRow({ label, value, isRTL }: { label: string; value: string | numbe
 
 export default function StartupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const navigation = useNavigation();
+  const router = useRouter();
   const { user } = useAuth();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+  const insets = useSafeAreaInsets();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
 
   const [startup, setStartup] = useState<Startup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,10 +57,9 @@ export default function StartupDetailScreen() {
       .then(({ data }: { data: unknown }) => {
         const startup = data as unknown as Startup;
         setStartup(startup);
-        if (startup) navigation.setOptions({ title: startup.startup_name || startup.name });
         setLoading(false);
       });
-  }, [id, navigation]);
+  }, [id]);
 
   const handleConnect = async (type: "interested" | "info_request") => {
     if (!user || !startup) return;
@@ -83,21 +88,55 @@ export default function StartupDetailScreen() {
     }
   };
 
-  if (loading || !startup) return <LoadingScreen />;
-
   const isInvestor = user?.accountType === "investor";
+
+  const headerTitle = startup ? (startup.startup_name || startup.name) : t("auth.startup");
+
+  const detailHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {headerTitle}
+      </Text>
+    </View>
+  );
+
+  if (loading || !startup) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        {detailHeader}
+        <LoadingScreen />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+      {detailHeader}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: (isInvestor ? 132 : 40) + insets.bottom }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Hero */}
-        <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">
+        <View className="bg-white px-6 pt-4 pb-6 border-b border-slate-100">
           <View className={`flex-row items-center mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Avatar name={startup.startup_name || startup.name} uri={startup.logo} size={64} />
             <View className={`flex-1 ${isRTL ? "mr-4" : "ml-4"}`}>
-              <Text className={`text-xl font-black text-black ${isRTL ? "text-right" : "text-left"}`}>
-                {startup.startup_name || startup.name}
-              </Text>
               <Text className={`text-slate-500 text-sm ${isRTL ? "text-right" : "text-left"}`}>
                 {startup.industry}
               </Text>
@@ -167,7 +206,10 @@ export default function StartupDetailScreen() {
 
       {/* CTA — investors only */}
       {isInvestor && (
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 flex-row gap-3">
+        <View
+          className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 flex-row gap-3"
+          style={{ paddingTop: 14, paddingBottom: insets.bottom + 12 }}
+        >
           <Button
             title={t("explore.expressInterest")}
             onPress={() => handleConnect("interested")}

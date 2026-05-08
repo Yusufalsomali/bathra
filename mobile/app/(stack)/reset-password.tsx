@@ -67,7 +67,7 @@ export default function ResetPasswordScreen() {
             </Text>
           </TouchableOpacity>
           <Text
-            className={`text-2xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}
+            className={`text-xl font-black text-black mb-2 ${isRTL ? "text-right" : "text-left"}`}
           >
             {t("auth.newPassword")}
           </Text>

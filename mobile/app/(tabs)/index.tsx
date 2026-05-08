@@ -162,7 +162,7 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
-              <Text className="text-white text-2xl font-black mt-0.5">{user?.name}</Text>
+              <Text className="text-white text-xl font-black mt-0.5">{user?.name}</Text>
             </View>
             <Avatar name={user?.name || "?"} size={44} />
           </View>
@@ -415,7 +415,7 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
           <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
             <View>
               <Text className="text-slate-400 text-sm">{t("dashboard.greeting")},</Text>
-              <Text className="text-white text-2xl font-black mt-0.5">{user?.name}</Text>
+              <Text className="text-white text-xl font-black mt-0.5">{user?.name}</Text>
             </View>
             <Avatar name={user?.name || "?"} size={44} />
           </View>
@@ -432,19 +432,19 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
             </Text>
             <View className="flex-row mb-4">
               <View className="flex-1 items-center">
-                <Text className="text-lg font-black text-black">
+                <Text className="text-xl font-black text-black">
                   {wallet ? wallet.available_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.availableBalance")}</Text>
               </View>
               <View className="flex-1 items-center border-x border-slate-100">
-                <Text className="text-lg font-black text-black">
+                <Text className="text-xl font-black text-black">
                   {wallet ? wallet.reserved_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.reservedBalance")}</Text>
               </View>
               <View className="flex-1 items-center">
-                <Text className="text-lg font-black text-black">
+                <Text className="text-xl font-black text-black">
                   {wallet ? wallet.invested_balance.toLocaleString() : "0"}
                 </Text>
                 <Text className="text-xs text-slate-500 mt-0.5">{t("portfolio.investedBalance")}</Text>

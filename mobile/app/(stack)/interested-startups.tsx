@@ -122,7 +122,7 @@ export default function InterestedStartupsScreen() {
           <TouchableOpacity onPress={() => router.back()} className="mr-3" activeOpacity={0.7}>
             {isRTL ? <ChevronRight size={24} stroke="#000000" strokeWidth={1.5} /> : <ChevronLeft size={24} stroke="#000000" strokeWidth={1.5} />}
           </TouchableOpacity>
-          <Text className={`text-lg font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
+          <Text className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}>
             {t("interestedStartups.title")}
           </Text>
         </View>
@@ -149,15 +149,15 @@ export default function InterestedStartupsScreen() {
               </Text>
               <View className="flex-row">
                 <View className="flex-1 items-center">
-                  <Text className="text-2xl font-black text-blue-600">{connections.length}</Text>
+                  <Text className="text-xl font-black text-blue-600">{connections.length}</Text>
                   <Text className="text-xs text-slate-500 text-center mt-0.5">{t("interestedStartups.totalInterested")}</Text>
                 </View>
                 <View className="flex-1 items-center border-x border-slate-100">
-                  <Text className="text-2xl font-black text-green-600">{uniqueIndustries}</Text>
+                  <Text className="text-xl font-black text-green-600">{uniqueIndustries}</Text>
                   <Text className="text-xs text-slate-500 text-center mt-0.5">{t("interestedStartups.industries")}</Text>
                 </View>
                 <View className="flex-1 items-center">
-                  <Text className="text-2xl font-black text-purple-600">{thisMonthCount}</Text>
+                  <Text className="text-xl font-black text-purple-600">{thisMonthCount}</Text>
                   <Text className="text-xs text-slate-500 text-center mt-0.5">{t("interestedStartups.thisMonth")}</Text>
                 </View>
               </View>
