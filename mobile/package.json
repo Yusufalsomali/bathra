@@ -10,6 +10,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo-google-fonts/sora": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5.1.4",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -17,6 +18,7 @@
     "expo": "~55.0.23",
     "expo-document-picker": "~14.0.8",
     "expo-file-system": "~19.0.21",
+    "expo-linear-gradient": "^55.0.13",
     "expo-linking": "~8.0.11",
     "expo-localization": "~17.0.8",
     "expo-router": "~55.0.13",
@@ -25,6 +27,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-web-browser": "~15.0.10",
     "i18n-js": "^4.4.3",
+    "lucide-react-native": "^1.14.0",
     "nativewind": "^4.1.23",
     "react": "19.1.0",
     "react-native": "0.81.5",

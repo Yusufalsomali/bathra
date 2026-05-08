@@ -1,16 +1,16 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { LucideIcon, Search } from "lucide-react-native";
 
 interface EmptyStateProps {
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: LucideIcon;
   title: string;
   description?: string;
   action?: React.ReactNode;
 }
 
 export function EmptyState({
-  icon = "search-outline",
+  icon: IconComponent = Search,
   title,
   description,
   action,
@@ -18,7 +18,7 @@ export function EmptyState({
   return (
     <View className="flex-1 items-center justify-center px-8 py-16">
       <View className="w-20 h-20 rounded-full bg-slate-100 items-center justify-center mb-4">
-        <Ionicons name={icon} size={36} color="#94a3b8" />
+        <IconComponent size={36} stroke="#94a3b8" strokeWidth={1.5} />
       </View>
       <Text className="text-lg font-semibold text-slate-800 text-center mb-2">
         {title}

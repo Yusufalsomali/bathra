@@ -25,7 +25,7 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseClasses = "flex-row items-center justify-center rounded-xl";
+  const baseClasses = "flex-row items-center justify-center rounded-lg";
 
   const variantClasses = {
     primary: "bg-slate-900",
@@ -42,11 +42,11 @@ export function Button({
   };
 
   const textVariantClasses = {
-    primary: "text-white",
-    secondary: "text-slate-900",
-    outline: "text-slate-900",
-    ghost: "text-slate-900",
-    destructive: "text-white",
+    primary: "text-white font-medium",
+    secondary: "text-slate-900 font-medium",
+    outline: "text-slate-900 font-medium",
+    ghost: "text-slate-900 font-medium",
+    destructive: "text-white font-medium",
   };
 
   const textSizeClasses = {

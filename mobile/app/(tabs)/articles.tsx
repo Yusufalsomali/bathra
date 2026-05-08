@@ -17,7 +17,7 @@ import { Article } from "@/types/database";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Ionicons } from "@expo/vector-icons";
+import { Eye, Newspaper } from "lucide-react-native";
 
 const CATEGORIES = [
   "all",
@@ -75,7 +75,7 @@ function ArticleCard({
         <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
           <Text className="text-xs text-slate-400">{item.author_name}</Text>
           <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-            <Ionicons name="eye-outline" size={13} color="#94a3b8" />
+            <Eye size={13} stroke="#94a3b8" strokeWidth={1.5} />
             <Text className="text-xs text-slate-400 ml-1">{item.views_count}</Text>
           </View>
         </View>
@@ -167,7 +167,7 @@ export default function ArticlesScreen() {
         ListEmptyComponent={
           !loading ? (
             <EmptyState
-              icon="newspaper-outline"
+              icon={Newspaper}
               title={t("articles.title")}
               description={t("common.noData")}
             />

@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { Ionicons } from "@expo/vector-icons";
+import { Globe, Calendar, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 function InfoRow({ label, value, isRTL }: { label: string; value: string | number | undefined; isRTL: boolean }) {
   if (!value) return null;
@@ -147,7 +147,7 @@ export default function StartupDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(startup.website!)}
                 >
-                  <Ionicons name="globe-outline" size={16} color="#0f172a" />
+                  <Globe size={16} stroke="#0f172a" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">{startup.website}</Text>
                 </TouchableOpacity>
               )}
@@ -156,7 +156,7 @@ export default function StartupDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(startup.calendly_link!)}
                 >
-                  <Ionicons name="calendar-outline" size={16} color="#0f172a" />
+                  <Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">Book a meeting</Text>
                 </TouchableOpacity>
               )}

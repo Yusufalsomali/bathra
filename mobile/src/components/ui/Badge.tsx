@@ -7,7 +7,8 @@ type BadgeVariant =
   | "warning"
   | "error"
   | "info"
-  | "outline";
+  | "outline"
+  | "secondary";
 
 interface BadgeProps {
   label: string;
@@ -16,11 +17,12 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, { container: string; text: string }> = {
-  default: { container: "bg-slate-100", text: "text-slate-700" },
-  success: { container: "bg-green-100", text: "text-green-700" },
-  warning: { container: "bg-amber-100", text: "text-amber-700" },
+  default: { container: "bg-black", text: "text-white" },
+  secondary: { container: "bg-slate-100", text: "text-slate-600" },
+  success: { container: "bg-slate-100", text: "text-slate-700" },
+  warning: { container: "bg-slate-100", text: "text-slate-700" },
   error: { container: "bg-red-100", text: "text-red-700" },
-  info: { container: "bg-blue-100", text: "text-blue-700" },
+  info: { container: "bg-slate-100", text: "text-slate-700" },
   outline: { container: "border border-slate-300 bg-transparent", text: "text-slate-700" },
 };
 

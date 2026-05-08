@@ -17,6 +17,9 @@ export default function StackLayout() {
       <Stack.Screen name="pitchdeck" options={{ title: "Pitch Deck" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
       <Stack.Screen name="reset-password" options={{ title: "Reset Password", headerShown: false }} />
+      <Stack.Screen name="interested-investors" options={{ title: "Interested Investors", headerShown: false }} />
+      <Stack.Screen name="interested-startups" options={{ title: "Interested Startups", headerShown: false }} />
+      <Stack.Screen name="portfolio" options={{ title: "Portfolio", headerShown: false }} />
       <Stack.Screen name="startup/[id]" options={{ title: "Startup" }} />
       <Stack.Screen name="investor/[id]" options={{ title: "Investor" }} />
       <Stack.Screen name="article/[slug]" options={{ title: "Article" }} />

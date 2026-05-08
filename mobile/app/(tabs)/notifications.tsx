@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
@@ -14,7 +15,11 @@ import { supabase } from "@/lib/supabase/client";
 import { Notification } from "@/types/database";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
-import { Ionicons } from "@expo/vector-icons";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import {
+  Users, GitMerge, TrendingUp, Shield, Settings,
+  Mail, User, Calendar, Bell, MessageSquare, LucideIcon,
+} from "lucide-react-native";
 
 const PRIORITY_COLORS = {
   low: "#94a3b8",
@@ -23,18 +28,18 @@ const PRIORITY_COLORS = {
   urgent: "#ef4444",
 };
 
-const TYPE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
-  connection_request: "people-outline",
-  match_suggestion: "git-merge-outline",
-  investment_interest: "trending-up-outline",
-  admin_action: "shield-outline",
-  system_update: "settings-outline",
-  newsletter: "mail-outline",
-  profile_update: "person-outline",
-  meeting_request: "calendar-outline",
-  reminder: "alarm-outline",
-  other: "notifications-outline",
-  message: "chatbubble-outline",
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  connection_request: Users,
+  match_suggestion: GitMerge,
+  investment_interest: TrendingUp,
+  admin_action: Shield,
+  system_update: Settings,
+  newsletter: Mail,
+  profile_update: User,
+  meeting_request: Calendar,
+  reminder: Bell,
+  other: Bell,
+  message: MessageSquare,
 };
 
 function NotificationItem({
@@ -48,7 +53,7 @@ function NotificationItem({
   isRTL: boolean;
   t: (k: string) => string;
 }) {
-  const icon = TYPE_ICONS[item.type] || "notifications-outline";
+  const IconComponent = TYPE_ICONS[item.type] || Bell;
   const priorityColor = PRIORITY_COLORS[item.priority] || PRIORITY_COLORS.normal;
 
   return (
@@ -61,7 +66,7 @@ function NotificationItem({
         className="w-10 h-10 rounded-full items-center justify-center mr-3"
         style={{ backgroundColor: `${priorityColor}15` }}
       >
-        <Ionicons name={icon} size={20} color={priorityColor} />
+        <IconComponent size={20} color={priorityColor} strokeWidth={1.5} />
       </View>
 
       <View className={`flex-1 ${isRTL ? "mr-3 ml-0" : ""}`}>
@@ -167,33 +172,39 @@ export default function NotificationsScreen() {
         )}
       </View>
 
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => { setRefreshing(true); fetchNotifications(); }}
-          />
-        }
-        ListEmptyComponent={
-          !loading ? (
+      {loading ? (
+        <View className="p-4">
+          {[1, 2, 3, 4].map((k) => <SkeletonCard key={k} />)}
+        </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); fetchNotifications(); }}
+            />
+          }
+          ListEmptyComponent={
             <EmptyState
-              icon="notifications-outline"
+              icon={Bell}
               title={t("notifications.noNotifications")}
               description={t("notifications.noNotificationsDesc")}
             />
-          ) : null
-        }
-        renderItem={({ item }) => (
-          <NotificationItem
-            item={item}
-            onPress={markAsRead}
-            isRTL={isRTL}
-            t={t}
-          />
-        )}
-      />
+          }
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInDown.delay(index * 50).duration(350)}>
+              <NotificationItem
+                item={item}
+                onPress={markAsRead}
+                isRTL={isRTL}
+                t={t}
+              />
+            </Animated.View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

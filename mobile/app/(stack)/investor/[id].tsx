@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { Ionicons } from "@expo/vector-icons";
+import { Link2, Calendar, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 function InfoRow({ label, value, isRTL }: { label: string; value: string | number | boolean | undefined; isRTL: boolean }) {
   if (value === undefined || value === null || value === "") return null;
@@ -112,7 +112,7 @@ export default function InvestorDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(investor.linkedin_profile!)}
                 >
-                  <Ionicons name="logo-linkedin" size={16} color="#0f172a" />
+                  <Link2 size={16} stroke="#0f172a" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">LinkedIn Profile</Text>
                 </TouchableOpacity>
               )}
@@ -121,7 +121,7 @@ export default function InvestorDetailScreen() {
                   className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
                   onPress={() => Linking.openURL(investor.calendly_link!)}
                 >
-                  <Ionicons name="calendar-outline" size={16} color="#0f172a" />
+                  <Calendar size={16} stroke="#0f172a" strokeWidth={1.5} />
                   <Text className="text-slate-700 ml-2 text-sm">Book a meeting</Text>
                 </TouchableOpacity>
               )}

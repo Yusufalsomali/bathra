@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Article } from "@/types/database";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { Ionicons } from "@expo/vector-icons";
+import { Eye } from "lucide-react-native";
 
 export default function ArticleDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -68,7 +68,7 @@ export default function ArticleDetailScreen() {
           <View className={`flex-row items-center justify-between mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
             <Badge label={t(`articles.${article.category}`)} variant="info" />
             <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-              <Ionicons name="eye-outline" size={14} color="#94a3b8" />
+              <Eye size={14} stroke="#94a3b8" strokeWidth={1.5} />
               <Text className="text-xs text-slate-400 ml-1">
                 {article.views_count} {t("articles.views")}
               </Text>

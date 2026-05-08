@@ -5,25 +5,29 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Linking,
 } from "react-native";
 import { useContext } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Globe, User, FileText, Users, Info, Shield, LogOut,
+  ChevronRight, ChevronLeft, LucideIcon,
+} from "lucide-react-native";
 
 const APP_VERSION = "1.0.0";
 
 function SettingsRow({
-  icon,
+  icon: IconComponent,
   label,
   value,
   onPress,
   destructive = false,
   isRTL,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: LucideIcon;
   label: string;
   value?: string;
   onPress?: () => void;
@@ -40,10 +44,10 @@ function SettingsRow({
       <View
         className={`w-9 h-9 rounded-xl items-center justify-center ${isRTL ? "ml-3" : "mr-3"} ${destructive ? "bg-red-50" : "bg-slate-100"}`}
       >
-        <Ionicons
-          name={icon}
+        <IconComponent
           size={18}
           color={destructive ? "#ef4444" : "#0f172a"}
+          strokeWidth={1.5}
         />
       </View>
       <Text
@@ -55,11 +59,9 @@ function SettingsRow({
         <Text className="text-sm text-slate-400 mr-1">{value}</Text>
       )}
       {onPress && (
-        <Ionicons
-          name={isRTL ? "chevron-back" : "chevron-forward"}
-          size={16}
-          color="#94a3b8"
-        />
+        isRTL
+          ? <ChevronLeft size={16} stroke="#94a3b8" strokeWidth={1.5} />
+          : <ChevronRight size={16} stroke="#94a3b8" strokeWidth={1.5} />
       )}
     </TouchableOpacity>
   );
@@ -124,7 +126,7 @@ export default function SettingsScreen() {
         <SectionHeader title={t("settings.language")} isRTL={isRTL} />
         <View className="mb-4">
           <SettingsRow
-            icon="language-outline"
+            icon={Globe}
             label={t("settings.language")}
             value={locale === "en" ? t("settings.english") : t("settings.arabic")}
             onPress={handleLanguageToggle}
@@ -136,21 +138,21 @@ export default function SettingsScreen() {
         <SectionHeader title={t("settings.account")} isRTL={isRTL} />
         <View className="mb-4">
           <SettingsRow
-            icon="person-outline"
+            icon={User}
             label={t("profile.editProfile")}
             onPress={() => router.push("/(stack)/profile")}
             isRTL={isRTL}
           />
           {user?.accountType === "startup" && (
             <SettingsRow
-              icon="document-text-outline"
+              icon={FileText}
               label={t("nav.pitchDeck")}
               onPress={() => router.push("/(stack)/pitchdeck")}
               isRTL={isRTL}
             />
           )}
           <SettingsRow
-            icon="people-outline"
+            icon={Users}
             label={t("nav.connections")}
             onPress={() => router.push("/(stack)/connections")}
             isRTL={isRTL}
@@ -161,19 +163,21 @@ export default function SettingsScreen() {
         <SectionHeader title="About" isRTL={isRTL} />
         <View className="mb-4">
           <SettingsRow
-            icon="information-circle-outline"
+            icon={Info}
             label={t("settings.appVersion")}
             value={APP_VERSION}
             isRTL={isRTL}
           />
           <SettingsRow
-            icon="document-text-outline"
+            icon={FileText}
             label={t("settings.termsAndConditions")}
+            onPress={() => Linking.openURL("https://bathra-ten.vercel.app/terms-and-conditions")}
             isRTL={isRTL}
           />
           <SettingsRow
-            icon="shield-outline"
+            icon={Shield}
             label={t("settings.privacyPolicy")}
+            onPress={() => Linking.openURL("https://bathra-ten.vercel.app/terms-and-conditions")}
             isRTL={isRTL}
           />
         </View>
@@ -182,7 +186,7 @@ export default function SettingsScreen() {
         <SectionHeader title="" isRTL={isRTL} />
         <View>
           <SettingsRow
-            icon="log-out-outline"
+            icon={LogOut}
             label={t("settings.signOut")}
             onPress={handleSignOut}
             destructive

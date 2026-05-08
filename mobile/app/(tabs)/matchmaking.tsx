@@ -7,6 +7,7 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
@@ -17,7 +18,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Ionicons } from "@expo/vector-icons";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import { Clock, GitMerge } from "lucide-react-native";
 
 function MatchCard({
   item,
@@ -71,7 +73,7 @@ function MatchCard({
 
       <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
         <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-          <Ionicons name="time-outline" size={14} color={isExpired ? "#ef4444" : "#94a3b8"} />
+          <Clock size={14} stroke={isExpired ? "#ef4444" : "#94a3b8"} strokeWidth={1.5} />
           <Text className={`text-xs ml-1 ${isExpired ? "text-red-500" : "text-slate-400"}`}>
             {t("matchmaking.expiresOn")} {new Date(item.expiry_date).toLocaleDateString()}
           </Text>
@@ -148,35 +150,41 @@ export default function MatchmakingScreen() {
         </Text>
       </View>
 
-      <FlatList
-        data={matches}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => { setRefreshing(true); fetchMatches(); }}
-          />
-        }
-        ListEmptyComponent={
-          !loading ? (
+      {loading ? (
+        <View className="p-4">
+          {[1, 2, 3].map((k) => <SkeletonCard key={k} />)}
+        </View>
+      ) : (
+        <FlatList
+          data={matches}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); fetchMatches(); }}
+            />
+          }
+          ListEmptyComponent={
             <EmptyState
-              icon="git-merge-outline"
+              icon={GitMerge}
               title={t("matchmaking.noMatches")}
               description={t("matchmaking.noMatchesDesc")}
             />
-          ) : null
-        }
-        renderItem={({ item }) => (
-          <MatchCard
-            item={item}
-            userId={user?.id || ""}
-            onToggleInterest={handleToggleInterest}
-            isRTL={isRTL}
-            t={t}
-          />
-        )}
-      />
+          }
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInDown.delay(index * 60).duration(400)}>
+              <MatchCard
+                item={item}
+                userId={user?.id || ""}
+                onToggleInterest={handleToggleInterest}
+                isRTL={isRTL}
+                t={t}
+              />
+            </Animated.View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

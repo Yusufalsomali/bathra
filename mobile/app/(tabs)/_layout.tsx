@@ -1,26 +1,9 @@
 import { Tabs, Redirect } from "expo-router";
 import { useContext } from "react";
-import { View, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Home, Compass, GitMerge, Newspaper, Bell } from "lucide-react-native";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-
-function TabIcon({
-  name,
-  focused,
-}: {
-  name: keyof typeof Ionicons.glyphMap;
-  focused: boolean;
-}) {
-  return (
-    <Ionicons
-      name={focused ? name : (`${name}-outline` as keyof typeof Ionicons.glyphMap)}
-      size={24}
-      color={focused ? "#0f172a" : "#94a3b8"}
-    />
-  );
-}
 
 export default function TabsLayout() {
   const { user, isLoading } = useAuth();
@@ -42,7 +25,7 @@ export default function TabsLayout() {
           paddingBottom: 8,
           height: 64,
         },
-        tabBarActiveTintColor: "#0f172a",
+        tabBarActiveTintColor: "#000000",
         tabBarInactiveTintColor: "#94a3b8",
         tabBarLabelStyle: {
           fontSize: 11,
@@ -55,35 +38,45 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t("nav.home"),
-          tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Home size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
+          ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: t("nav.explore"),
-          tabBarIcon: ({ focused }) => <TabIcon name="compass" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Compass size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
+          ),
         }}
       />
       <Tabs.Screen
         name="matchmaking"
         options={{
           title: t("nav.matchmaking"),
-          tabBarIcon: ({ focused }) => <TabIcon name="git-merge" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <GitMerge size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
+          ),
         }}
       />
       <Tabs.Screen
         name="articles"
         options={{
           title: t("nav.articles"),
-          tabBarIcon: ({ focused }) => <TabIcon name="newspaper" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Newspaper size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
+          ),
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
           title: t("nav.notifications"),
-          tabBarIcon: ({ focused }) => <TabIcon name="notifications" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Bell size={22} stroke={focused ? "#000000" : "#94a3b8"} strokeWidth={focused ? 2 : 1.5} />
+          ),
         }}
       />
     </Tabs>

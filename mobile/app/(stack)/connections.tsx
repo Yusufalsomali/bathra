@@ -6,6 +6,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/auth-context";
@@ -17,7 +18,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge, statusToBadgeVariant } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Ionicons } from "@expo/vector-icons";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import { ChevronRight, Users } from "lucide-react-native";
 
 function ConnectionCard({
   item,
@@ -51,7 +53,7 @@ function ConnectionCard({
               </Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={16} color="#94a3b8" />
+          <ChevronRight size={16} stroke="#94a3b8" strokeWidth={1.5} />
         </View>
 
         <View className={`flex-row items-center justify-between mt-3 pt-3 border-t border-slate-50 ${isRTL ? "flex-row-reverse" : ""}`}>
@@ -117,35 +119,41 @@ export default function ConnectionsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50">
-      <FlatList
-        data={connections}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => { setRefreshing(true); fetchConnections(); }}
-          />
-        }
-        ListEmptyComponent={
-          !loading ? (
+      {loading ? (
+        <View className="p-4">
+          {[1, 2, 3].map((k) => <SkeletonCard key={k} />)}
+        </View>
+      ) : (
+        <FlatList
+          data={connections}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); fetchConnections(); }}
+            />
+          }
+          ListEmptyComponent={
             <EmptyState
-              icon="people-outline"
+              icon={Users}
               title={t("connections.noConnections")}
               description={t("connections.noConnectionsDesc")}
             />
-          ) : null
-        }
-        renderItem={({ item }) => (
-          <ConnectionCard
-            item={item}
-            userId={user?.id || ""}
-            isRTL={isRTL}
-            t={t}
-            onViewProfile={() => handleViewProfile(item)}
-          />
-        )}
-      />
+          }
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInDown.delay(index * 60).duration(400)}>
+              <ConnectionCard
+                item={item}
+                userId={user?.id || ""}
+                isRTL={isRTL}
+                t={t}
+                onViewProfile={() => handleViewProfile(item)}
+              />
+            </Animated.View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
