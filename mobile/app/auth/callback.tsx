@@ -54,5 +54,5 @@ export default function AuthCallbackScreen() {
     );
   }
 
-  return <LoadingScreen message="Authenticating..." />;
+  return <LoadingScreen />;
 }
