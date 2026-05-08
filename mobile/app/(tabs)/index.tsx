@@ -71,6 +71,93 @@ function QuickAction({
   );
 }
 
+function InvestorHomePrefs({
+  profile,
+  t,
+  isRTL,
+}: {
+  profile: Investor;
+  t: (k: string) => string;
+  isRTL: boolean;
+}) {
+  const industryTags = (profile.preferred_industries ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  function PrefRow({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: typeof Building2;
+    label: string;
+    value: string;
+  }) {
+    return (
+      <View
+        className={`rounded-xl border border-slate-100 bg-slate-50 px-3 py-3.5 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}
+      >
+        <View className="w-11 h-11 rounded-xl bg-white border border-slate-100 items-center justify-center">
+          <Icon size={18} stroke="#000000" strokeWidth={1.75} />
+        </View>
+        <View className={`flex-1 min-w-0 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
+          <Text
+            className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1 ${isRTL ? "text-right" : "text-left"}`}
+          >
+            {label}
+          </Text>
+          <Text
+            className={`text-sm font-semibold text-black leading-5 ${isRTL ? "text-right" : "text-left"}`}
+            numberOfLines={4}
+          >
+            {value}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View className="gap-3">
+      {profile.company ? (
+        <PrefRow icon={Building2} label={t("profile.company")} value={profile.company} />
+      ) : null}
+      {profile.average_ticket_size ? (
+        <PrefRow
+          icon={Banknote}
+          label={t("dashboard.averageTicket")}
+          value={String(profile.average_ticket_size)}
+        />
+      ) : null}
+      {industryTags.length > 0 ? (
+        <View className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+          <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
+            <View className="w-11 h-11 rounded-xl bg-white border border-slate-100 items-center justify-center">
+              <Layers size={18} stroke="#000000" strokeWidth={1.75} />
+            </View>
+            <Text
+              className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 flex-1 ${isRTL ? "mr-3 text-right" : "ml-3 text-left"}`}
+            >
+              {t("profile.preferredIndustries")}
+            </Text>
+          </View>
+          <View className={`flex-row flex-wrap gap-2 ${isRTL ? "justify-end" : "justify-start"}`}>
+            {industryTags.map((tag, i) => (
+              <View
+                key={`${tag}-${i}`}
+                className="px-3 py-1.5 rounded-full bg-white border border-slate-200"
+              >
+                <Text className="text-xs font-semibold text-black">{tag}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 // ─── Startup Dashboard ───────────────────────────────────────────────────────
 
 interface StartupData {
@@ -547,38 +634,18 @@ function InvestorDashboard({ isRTL }: { isRTL: boolean }) {
             </View>
           </Card>
 
-          {/* Investor profile summary */}
-          {profile && (
-            <Card className="mb-4">
-              <Text className={`text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ${isRTL ? "text-right" : "text-left"}`}>
-                {t("profile.investmentPrefs")}
-              </Text>
-              <View className="space-y-2">
-                {profile.company && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Building2 size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2">{profile.company}</Text>
-                  </View>
-                )}
-                {profile.average_ticket_size && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Banknote size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2">
-                      {t("dashboard.averageTicket")}: {profile.average_ticket_size}
-                    </Text>
-                  </View>
-                )}
-                {profile.preferred_industries && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Layers size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2 flex-1" numberOfLines={1}>
-                      {profile.preferred_industries}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </Card>
-          )}
+          {/* Investor profile summary — investment preferences */}
+          {profile &&
+            (profile.company || profile.average_ticket_size || profile.preferred_industries) && (
+              <Card className="mb-4">
+                <Text
+                  className={`text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ${isRTL ? "text-right" : "text-left"}`}
+                >
+                  {t("profile.investmentPrefs")}
+                </Text>
+                <InvestorHomePrefs profile={profile} t={t} isRTL={isRTL} />
+              </Card>
+            )}
         </View>
       </ScrollView>
     </SafeAreaView>
