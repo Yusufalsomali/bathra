@@ -13,22 +13,22 @@ export default function WelcomeScreen() {
   const { isRTL } = useRTL();
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 px-6 pt-10 pb-10">
         {/* Back */}
         <TouchableOpacity className="mb-8" onPress={() => router.back()}>
-          <Text className="text-slate-400 text-sm">
+          <Text className="text-slate-600 text-sm">
             {isRTL ? "→" : "←"} {t("common.back")}
           </Text>
         </TouchableOpacity>
 
         {/* Branding */}
         <View className="items-center mb-14">
-          <View className="w-16 h-16 rounded-2xl bg-white items-center justify-center mb-4">
+          <View className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 items-center justify-center mb-4">
             <Text className="text-slate-900 font-black text-2xl">B</Text>
           </View>
-          <Text className="text-white text-2xl font-black tracking-tight">Bathra</Text>
-          <Text className="text-slate-400 text-sm mt-1 text-center">
+          <Text className="text-slate-900 text-2xl font-black tracking-tight">Bathra</Text>
+          <Text className="text-slate-600 text-sm mt-1 text-center">
             {isRTL
               ? "منصة ربط رواد الأعمال بالمستثمرين"
               : "Connecting startups with investors"}
@@ -38,19 +38,19 @@ export default function WelcomeScreen() {
         {/* Buttons */}
         <View className="gap-4">
           <TouchableOpacity
-            className="bg-white rounded-2xl py-4 items-center"
+            className="bg-slate-900 rounded-2xl py-4 items-center"
             activeOpacity={0.85}
             onPress={() => router.push("/(auth)/login")}
           >
-            <Text className="text-slate-900 font-black text-base">{t("auth.logIn")}</Text>
+            <Text className="text-white font-black text-base">{t("auth.logIn")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="border border-white/20 rounded-2xl py-4 items-center"
+            className="border border-slate-200 rounded-2xl py-4 items-center bg-slate-50"
             activeOpacity={0.85}
             onPress={() => Linking.openURL(SIGNUP_URL)}
           >
-            <Text className="text-white font-bold text-base">{t("auth.signUpOnWeb")}</Text>
+            <Text className="text-slate-900 font-bold text-base">{t("auth.signUpOnWeb")}</Text>
             <Text className="text-slate-500 text-xs mt-1">{t("auth.signUpNote")}</Text>
           </TouchableOpacity>
         </View>

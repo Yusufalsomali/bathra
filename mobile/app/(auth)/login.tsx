@@ -6,6 +6,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useContext } from "react";
@@ -15,6 +16,8 @@ import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+
+const SIGNUP_URL = "https://bathra-ten.vercel.app/signup";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -123,7 +126,7 @@ export default function LoginScreen() {
 
             <View className="flex-row justify-center items-center">
               <Text className="text-slate-500">{t("auth.noAccount")} </Text>
-              <TouchableOpacity onPress={() => router.push("/(auth)")}>
+              <TouchableOpacity onPress={() => Linking.openURL(SIGNUP_URL)}>
                 <Text className="text-slate-900 font-semibold">{t("auth.createAccount")}</Text>
               </TouchableOpacity>
             </View>

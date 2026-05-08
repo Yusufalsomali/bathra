@@ -11,22 +11,22 @@ export default function SplashScreen() {
   const { isRTL } = useRTL();
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 items-center justify-between px-6 pt-20 pb-16">
         {/* Spacer top */}
         <View className="flex-1 items-center justify-center">
           {/* Logo */}
-          <View className="w-24 h-24 rounded-3xl bg-white items-center justify-center mb-6 shadow-lg">
+          <View className="w-24 h-24 rounded-3xl bg-slate-100 border border-slate-200 items-center justify-center mb-6">
             <Text className="text-slate-900 font-black text-4xl">B</Text>
           </View>
 
           {/* Brand name */}
-          <Text className="text-white text-4xl font-black tracking-tight mb-3">
+          <Text className="text-slate-900 text-4xl font-black tracking-tight mb-3">
             Bathra
           </Text>
 
           {/* Slogan */}
-          <Text className="text-slate-400 text-base text-center leading-6 px-4">
+          <Text className="text-slate-600 text-base text-center leading-6 px-4">
             {isRTL
               ? "منصة ربط رواد الأعمال بالمستثمرين"
               : "Connecting startups with investors"}
@@ -35,11 +35,11 @@ export default function SplashScreen() {
 
         {/* Proceed button */}
         <TouchableOpacity
-          className="bg-white w-full rounded-2xl py-4 items-center"
+          className="bg-slate-900 w-full rounded-2xl py-4 items-center"
           activeOpacity={0.85}
           onPress={() => router.push("/(auth)/welcome" as Href)}
         >
-          <Text className="text-slate-900 font-black text-base">
+          <Text className="text-white font-black text-base">
             {t("auth.proceed")}
           </Text>
         </TouchableOpacity>
