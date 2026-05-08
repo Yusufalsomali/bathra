@@ -96,6 +96,9 @@ export interface BackgroundPathsProps {
   user?: User | null;
 }
 
+// Detect if a string contains Arabic characters
+const isArabicText = (text: string) => /[\u0600-\u06FF]/.test(text);
+
 export function BackgroundPaths({
   title = "Transform Your Vision Into Reality",
   subtitle = "Get funded. Invest wisely. Build the future together with strategic partners who believe in your potential.",
@@ -104,6 +107,7 @@ export function BackgroundPaths({
   user = null,
 }: BackgroundPathsProps) {
   const navigate = useNavigate();
+  const isArabic = isArabicText(title);
   const words = title.split(" ");
   const [isIOS, setIsIOS] = useState(false);
 
@@ -133,28 +137,50 @@ export function BackgroundPaths({
           transition={{ duration: 2 }}
           className="max-w-4xl mx-auto"
         >
-          <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-tighter">
-            {words.map((word, wordIndex) => (
-              <span key={wordIndex} className="inline-block mr-4 last:mr-0">
-                {word.split("").map((letter, letterIndex) => (
-                  <motion.span
-                    key={`${wordIndex}-${letterIndex}`}
-                    initial={{ y: isIOS ? 20 : 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{
-                      delay: wordIndex * 0.1 + letterIndex * 0.03,
-                      type: isIOS ? "tween" : "spring",
-                      stiffness: isIOS ? undefined : 150,
-                      damping: isIOS ? undefined : 25,
-                      duration: isIOS ? 0.5 : undefined,
-                    }}
-                    className="inline-block rainbow-text"
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-              </span>
-            ))}
+          <h1 className={`text-5xl sm:text-7xl md:text-8xl font-bold mb-8 ${isArabic ? "tracking-normal font-arabic" : "tracking-tighter"}`}>
+            {isArabic ? (
+              // Arabic: animate whole words — never split letters (breaks joining)
+              words.map((word, wordIndex) => (
+                <motion.span
+                  key={wordIndex}
+                  initial={{ y: isIOS ? 20 : 60, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    delay: wordIndex * 0.15,
+                    type: isIOS ? "tween" : "spring",
+                    stiffness: isIOS ? undefined : 150,
+                    damping: isIOS ? undefined : 25,
+                    duration: isIOS ? 0.5 : undefined,
+                  }}
+                  className="inline-block mx-2 rainbow-text"
+                >
+                  {word}
+                </motion.span>
+              ))
+            ) : (
+              // English: animate letter by letter
+              words.map((word, wordIndex) => (
+                <span key={wordIndex} className="inline-block mr-4 last:mr-0">
+                  {word.split("").map((letter, letterIndex) => (
+                    <motion.span
+                      key={`${wordIndex}-${letterIndex}`}
+                      initial={{ y: isIOS ? 20 : 100, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{
+                        delay: wordIndex * 0.1 + letterIndex * 0.03,
+                        type: isIOS ? "tween" : "spring",
+                        stiffness: isIOS ? undefined : 150,
+                        damping: isIOS ? undefined : 25,
+                        duration: isIOS ? 0.5 : undefined,
+                      }}
+                      className="inline-block rainbow-text"
+                    >
+                      {letter}
+                    </motion.span>
+                  ))}
+                </span>
+              ))
+            )}
           </h1>
 
           {subtitle && (
@@ -162,7 +188,7 @@ export function BackgroundPaths({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.5, duration: 0.8 }}
-              className="text-lg md:text-xl text-foreground mb-12 max-w-2xl mx-auto"
+              className={`text-lg md:text-xl text-foreground mb-12 max-w-2xl mx-auto ${isArabic ? "font-arabic" : ""}`}
             >
               {subtitle}
             </motion.p>

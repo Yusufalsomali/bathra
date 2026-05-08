@@ -55,6 +55,7 @@ export default {
       },
       fontFamily: {
         sora: ['Sora', 'sans-serif'],
+        arabic: ['"IBM Plex Sans Arabic"', '"Noto Sans Arabic"', '"Arial Unicode MS"', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {

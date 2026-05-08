@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -205,7 +205,16 @@ a.underline,
 }
 
 .font-arabic {
-  font-family: "Amiri", "Noto Sans Arabic", "Arial Unicode MS", sans-serif;
+  font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Arial Unicode MS", sans-serif;
+}
+
+/* Arabic text must never have letter-spacing — it breaks letter joining */
+.font-arabic *,
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+  word-spacing: normal;
+  font-feature-settings: normal;
+  text-transform: none;
 }
 
 /* Improve Arabic text rendering */
