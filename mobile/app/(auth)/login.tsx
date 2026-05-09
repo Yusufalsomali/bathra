@@ -43,8 +43,14 @@ export default function LoginScreen() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await signIn(email.trim(), password);
-      router.replace("/" as Href);
+      const appUser = await signIn(email.trim(), password);
+      // Navigate directly — avoids a race where `/` runs before React commits `user`
+      // and route guards see no session (mirror ref was cleared by the old effect).
+      if (appUser.status === "approved") {
+        router.replace("/(tabs)" as Href);
+      } else {
+        router.replace("/(auth)/pending" as Href);
+      }
     } catch {
       Alert.alert(t("common.error"), t("auth.loginFailed"));
     } finally {

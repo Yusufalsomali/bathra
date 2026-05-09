@@ -23,7 +23,7 @@ interface AuthContextValue {
   routeUserRef: React.MutableRefObject<AppUser | null>;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AppUser>;
   signUp: (credentials: SignUpCredentials) => Promise<{ emailVerificationSent: boolean }>;
   verifyOTP: (email: string, token: string) => Promise<void>;
   resendOTP: (email: string) => Promise<void>;
@@ -40,7 +40,9 @@ const AuthContext = createContext<AuthContextValue>({
   routeUserRef: routeUserRefFallback,
   session: null,
   isLoading: true,
-  signIn: async () => {},
+  signIn: async () => {
+    throw new Error("AuthProvider not mounted");
+  },
   signUp: async () => ({ emailVerificationSent: false }),
   verifyOTP: async () => {},
   resendOTP: async () => {},
@@ -56,8 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const routeUserRef = useRef<AppUser | null>(null);
 
+  // Only mirror non-null `user` into the ref. Mirroring `null` would race with signIn:
+  // signIn sets routeUserRef synchronously then setUser; before commit, `user` can still
+  // be null and would wipe the ref and break post-login redirects.
   useEffect(() => {
-    routeUserRef.current = user;
+    if (user !== null) {
+      routeUserRef.current = user;
+    }
   }, [user]);
 
   const buildAppUser = useCallback(async (supabaseUser: { id: string; email?: string; user_metadata?: Record<string, unknown>; created_at: string }): Promise<AppUser | null> => {
@@ -128,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data } = await supabase.auth.getUser();
     if (data.user) {
       const appUser = await buildAppUser(data.user);
+      routeUserRef.current = appUser;
       setUser(appUser);
     }
   }, [buildAppUser]);
@@ -142,19 +150,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       if (session?.user) {
         const appUser = await buildAppUser(session.user);
+        routeUserRef.current = appUser;
         setUser(appUser);
       }
       setIsLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event: string, session: import("@supabase/supabase-js").Session | null) => {
-        setSession(session);
-        if (session?.user) {
-          const appUser = await buildAppUser(session.user);
-          setUser(appUser);
-        } else {
+      async (event: string, session: import("@supabase/supabase-js").Session | null) => {
+        // Only clear user on explicit sign-out. Supabase may emit other events where
+        // `session` is briefly null; clearing `user` there races with signIn and sends
+        // users back to the auth stack until the next cold start reloads from storage.
+        if (event === "SIGNED_OUT") {
+          setSession(null);
           setUser(null);
+          routeUserRef.current = null;
+          setIsLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          setSession(session);
+          const appUser = await buildAppUser(session.user);
+          routeUserRef.current = appUser;
+          setUser(appUser);
         }
         setIsLoading(false);
       }
@@ -169,13 +188,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     if (error) throw error;
-    await supabase.auth.getSession();
-    if (data.session) setSession(data.session);
-    if (data.user) {
-      const appUser = await buildAppUser(data.user);
-      routeUserRef.current = appUser;
-      setUser(appUser);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData.session ?? data.session;
+    const authUser = session?.user ?? data.user;
+    if (session) setSession(session);
+    if (!authUser) {
+      throw new Error("Sign-in succeeded but no user in session");
     }
+    const appUser = await buildAppUser(authUser);
+    if (!appUser) {
+      throw new Error("Could not build user profile");
+    }
+    routeUserRef.current = appUser;
+    setUser(appUser);
+    return appUser;
   }, [buildAppUser]);
 
   const signUp = useCallback(async (credentials: SignUpCredentials) => {
