@@ -1,0 +1,169 @@
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useEffect, useContext } from "react";
+import { useLocalSearchParams, useRouter, Href } from "expo-router";
+import { I18nContext } from "@/context/i18n-context";
+import { useRTL } from "@/hooks/useRTL";
+import { supabase } from "@/lib/supabase/client";
+import { Investor } from "@/types/database";
+import { Card } from "@/components/ui/Card";
+import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { Link2, Calendar, ChevronLeft, ChevronRight } from "lucide-react-native";
+
+function InfoRow({ label, value, isRTL }: { label: string; value: string | number | boolean | undefined; isRTL: boolean }) {
+  if (value === undefined || value === null || value === "") return null;
+  const display = typeof value === "boolean" ? (value ? "Yes" : "No") : String(value);
+  return (
+    <View className={`mb-3 ${isRTL ? "items-end" : "items-start"}`}>
+      <Text className="text-xs font-medium text-slate-400 mb-0.5">{label}</Text>
+      <Text className="text-sm text-slate-800">{display}</Text>
+    </View>
+  );
+}
+
+export default function InvestorDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { t } = useContext(I18nContext);
+  const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
+
+  const [investor, setInvestor] = useState<Investor | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("investors")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data }: { data: unknown }) => {
+        const investor = data as unknown as Investor;
+        setInvestor(investor);
+        setLoading(false);
+      });
+  }, [id]);
+
+  const headerTitle = investor ? investor.name : t("auth.investor");
+
+  const detailHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {headerTitle}
+      </Text>
+    </View>
+  );
+
+  if (loading || !investor) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        {detailHeader}
+        <LoadingScreen />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      {detailHeader}
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        {/* Hero */}
+        <View className="bg-white px-6 pt-4 pb-6 border-b border-slate-100">
+          <View className={`flex-row items-center mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
+            <Avatar name={investor.name} size={64} />
+            <View className={`flex-1 ${isRTL ? "mr-4" : "ml-4"}`}>
+              <Text className={`text-slate-500 text-sm ${isRTL ? "text-right" : "text-left"}`}>
+                {investor.role}{investor.company ? ` · ${investor.company}` : ""}
+              </Text>
+              <Text className={`text-slate-400 text-xs mt-0.5 ${isRTL ? "text-right" : "text-left"}`}>
+                {investor.city}, {investor.country}
+              </Text>
+            </View>
+          </View>
+          <View className={`flex-row flex-wrap gap-2 ${isRTL ? "justify-end" : "justify-start"}`}>
+            {investor.secured_lead_investor && <Badge label="Lead Investor" variant="success" />}
+            {investor.participated_as_advisor && <Badge label="Advisor" variant="info" />}
+          </View>
+        </View>
+
+        <View className="px-4 pt-4">
+          {/* Investment preferences */}
+          <Card className="mb-3">
+            <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+              {t("profile.investmentPrefs")}
+            </Text>
+            <InfoRow label={t("profile.preferredIndustries")} value={investor.preferred_industries} isRTL={isRTL} />
+            <InfoRow label={t("profile.preferredStage")} value={investor.preferred_company_stage} isRTL={isRTL} />
+            <InfoRow label={t("profile.numberOfInvestments")} value={investor.number_of_investments} isRTL={isRTL} />
+            <InfoRow label={t("profile.averageTicket")} value={investor.average_ticket_size} isRTL={isRTL} />
+          </Card>
+
+          {/* Background */}
+          {investor.strong_candidate_reason && (
+            <Card className="mb-3">
+              <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+                Background
+              </Text>
+              <InfoRow label={t("profile.whyStrongCandidate")} value={investor.strong_candidate_reason} isRTL={isRTL} />
+              <InfoRow label={t("profile.hasLedInvestment")} value={investor.secured_lead_investor} isRTL={isRTL} />
+              <InfoRow label={t("profile.hasBeenAdvisor")} value={investor.participated_as_advisor} isRTL={isRTL} />
+            </Card>
+          )}
+
+          {/* Links */}
+          {(investor.linkedin_profile || investor.calendly_link) && (
+            <Card className="mb-3">
+              <Text className={`font-bold text-black mb-3 ${isRTL ? "text-right" : "text-left"}`}>Links</Text>
+              {investor.linkedin_profile && (
+                <TouchableOpacity
+                  className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                  onPress={() => Linking.openURL(investor.linkedin_profile!)}
+                >
+                  <Link2 size={16} stroke="#000000" strokeWidth={1.5} />
+                  <Text className="text-slate-700 ml-2 text-sm">LinkedIn Profile</Text>
+                </TouchableOpacity>
+              )}
+              {investor.calendly_link && (
+                <TouchableOpacity
+                  className={`flex-row items-center py-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                  onPress={() => Linking.openURL(investor.calendly_link!)}
+                >
+                  <Calendar size={16} stroke="#000000" strokeWidth={1.5} />
+                  <Text className="text-slate-700 ml-2 text-sm">Book a meeting</Text>
+                </TouchableOpacity>
+              )}
+            </Card>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
