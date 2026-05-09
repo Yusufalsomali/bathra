@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState, useEffect, useContext } from "react";
+import { PaperInvestModal } from "@/components/paper-venture/PaperInvestModal";
 import { useLocalSearchParams, useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
@@ -48,6 +49,7 @@ export default function StartupDetailScreen() {
   const [startup, setStartup] = useState<Startup | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
+  const [paperInvestOpen, setPaperInvestOpen] = useState(false);
 
   useEffect(() => {
     supabase
@@ -129,7 +131,7 @@ export default function StartupDetailScreen() {
     <SafeAreaView className="flex-1 bg-white">
       {detailHeader}
       <ScrollView
-        contentContainerStyle={{ paddingBottom: (isInvestor ? 132 : 40) + insets.bottom }}
+        contentContainerStyle={{ paddingBottom: (isInvestor ? 200 : 40) + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {/* Hero */}
@@ -207,23 +209,40 @@ export default function StartupDetailScreen() {
       {/* CTA — investors only */}
       {isInvestor && (
         <View
-          className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 flex-row gap-3"
-          style={{ paddingTop: 14, paddingBottom: insets.bottom + 12 }}
+          className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4"
+          style={{ paddingTop: 12, paddingBottom: insets.bottom + 12, gap: 10 }}
         >
+          <View className="flex-row gap-3">
+            <Button
+              title={t("explore.expressInterest")}
+              onPress={() => handleConnect("interested")}
+              loading={connecting}
+              className="flex-1"
+            />
+            <Button
+              title={t("explore.requestInfo")}
+              variant="outline"
+              onPress={() => handleConnect("info_request")}
+              loading={connecting}
+              className="flex-1"
+            />
+          </View>
           <Button
-            title={t("explore.expressInterest")}
-            onPress={() => handleConnect("interested")}
-            loading={connecting}
-            className="flex-1"
-          />
-          <Button
-            title={t("explore.requestInfo")}
+            title={t("explore.paperVentureOffer")}
             variant="outline"
-            onPress={() => handleConnect("info_request")}
-            loading={connecting}
-            className="flex-1"
+            onPress={() => setPaperInvestOpen(true)}
+            disabled={connecting}
           />
         </View>
+      )}
+
+      {isInvestor && startup && (
+        <PaperInvestModal
+          visible={paperInvestOpen}
+          onClose={() => setPaperInvestOpen(false)}
+          startupId={startup.id}
+          startupDisplayName={startup.startup_name || startup.name}
+        />
       )}
     </SafeAreaView>
   );

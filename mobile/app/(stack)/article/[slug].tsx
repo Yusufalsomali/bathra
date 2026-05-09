@@ -3,23 +3,29 @@ import {
   Text,
   ScrollView,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter, Href } from "expo-router";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { supabase } from "@/lib/supabase/client";
 import { Article } from "@/types/database";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { Eye } from "lucide-react-native";
+import { Eye, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 export default function ArticleDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const navigation = useNavigation();
+  const router = useRouter();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)/articles" as Href);
+  };
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,14 +41,44 @@ export default function ArticleDetailScreen() {
         const article = data as unknown as Article;
         setArticle(article);
         if (article) {
-          navigation.setOptions({ title: article.title });
           await supabase.rpc("increment_article_views", { article_id: article.id });
         }
         setLoading(false);
       });
-  }, [slug, navigation]);
+  }, [slug]);
 
-  if (loading || !article) return <LoadingScreen />;
+  const articleHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {t("articles.title")}
+      </Text>
+    </View>
+  );
+
+  if (loading || !article) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+        {articleHeader}
+        <LoadingScreen />
+      </SafeAreaView>
+    );
+  }
 
   const publishDate = article.published_at
     ? new Date(article.published_at).toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
@@ -53,7 +89,8 @@ export default function ArticleDetailScreen() {
     : "";
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+      {articleHeader}
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {article.featured_image_url && (
           <Image

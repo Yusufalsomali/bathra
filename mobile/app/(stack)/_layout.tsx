@@ -14,9 +14,10 @@ export default function StackLayout() {
         contentStyle: { backgroundColor: "#ffffff" },
       }}
     >
-      <Stack.Screen name="profile" options={{ title: "Profile" }} />
+      <Stack.Screen name="profile" options={{ headerShown: false }} />
       <Stack.Screen name="connections" options={{ title: "Connections" }} />
-      <Stack.Screen name="pitchdeck" options={{ title: "Pitch Deck" }} />
+      <Stack.Screen name="pitchdeck" options={{ headerShown: false }} />
+      <Stack.Screen name="startup-offers" options={{ headerShown: false }} />
       <Stack.Screen name="settings" options={{ headerShown: false }} />
       <Stack.Screen name="reset-password" options={{ title: "Reset Password", headerShown: false }} />
       <Stack.Screen name="interested-investors" options={{ title: "Interested Investors", headerShown: false }} />
@@ -24,7 +25,7 @@ export default function StackLayout() {
       <Stack.Screen name="portfolio" options={{ title: "Portfolio", headerShown: false }} />
       <Stack.Screen name="startup/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="investor/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="article/[slug]" options={{ title: "Article" }} />
+      <Stack.Screen name="article/[slug]" options={{ headerShown: false }} />
     </Stack>
   );
 }

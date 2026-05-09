@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -16,14 +17,44 @@ import * as DocumentPicker from "expo-document-picker";
 import { File as FSFile } from "expo-file-system";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { FileText, ExternalLink, CloudUpload } from "lucide-react-native";
+import { FileText, ExternalLink, CloudUpload, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 const MAX_FILE_SIZE_MB = 10;
 
 export default function PitchDeckScreen() {
+  const router = useRouter();
   const { user } = useAuth();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
+
+  const pitchDeckNavHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {t("pitchdeck.title")}
+      </Text>
+    </View>
+  );
 
   const [pitchDeckUrl, setPitchDeckUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,8 +144,9 @@ export default function PitchDeckScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-4 pt-6">
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+      {pitchDeckNavHeader}
+      <View className="flex-1 px-4 pt-4">
         {loading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#000000" />

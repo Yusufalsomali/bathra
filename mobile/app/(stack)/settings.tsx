@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useContext } from "react";
@@ -16,8 +15,10 @@ import {
   Globe, User, FileText, Users, Info, Shield, LogOut,
   ChevronRight, ChevronLeft, LucideIcon,
 } from "lucide-react-native";
+import { openInAppBrowser } from "@/lib/open-in-app-browser";
 
 const APP_VERSION = "1.0.0";
+const LEGAL_URL = "https://bathra-ten.vercel.app/terms-and-conditions";
 
 function SettingsRow({
   icon: IconComponent,
@@ -194,13 +195,13 @@ export default function SettingsScreen() {
           <SettingsRow
             icon={FileText}
             label={t("settings.termsAndConditions")}
-            onPress={() => Linking.openURL("https://bathra-ten.vercel.app/terms-and-conditions")}
+            onPress={() => openInAppBrowser(LEGAL_URL)}
             isRTL={isRTL}
           />
           <SettingsRow
             icon={Shield}
             label={t("settings.privacyPolicy")}
-            onPress={() => Linking.openURL("https://bathra-ten.vercel.app/terms-and-conditions")}
+            onPress={() => openInAppBrowser(LEGAL_URL)}
             isRTL={isRTL}
           />
         </View>

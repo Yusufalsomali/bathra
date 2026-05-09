@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, Linking } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { BathraLogoMark } from "@/components/branding/BathraLogoMark";
+import { openInAppBrowser } from "@/lib/open-in-app-browser";
 
 const SIGNUP_URL = "https://bathra-ten.vercel.app/signup";
 
@@ -46,7 +47,7 @@ export default function WelcomeScreen() {
           <TouchableOpacity
             className="border border-slate-200 rounded-2xl py-4 items-center bg-slate-50"
             activeOpacity={0.85}
-            onPress={() => Linking.openURL(SIGNUP_URL)}
+            onPress={() => openInAppBrowser(SIGNUP_URL)}
           >
             <Text className="text-black font-bold text-base">{t("auth.signUpOnWeb")}</Text>
             <Text className="text-slate-500 text-xs mt-1">{t("auth.signUpNote")}</Text>

@@ -21,6 +21,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { StartupActivityFeed } from "@/components/StartupActivityFeed";
 import {
   Heart, BarChart2, TrendingUp, Clock, GitMerge,
   User, FileText, Settings, Building2, Banknote,
@@ -158,6 +159,136 @@ function InvestorHomePrefs({
   );
 }
 
+function StartupHomeCompanyInfo({
+  profile,
+  t,
+  isRTL,
+}: {
+  profile: Startup;
+  t: (k: string) => string;
+  isRTL: boolean;
+}) {
+  function PrefRow({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: typeof Building2;
+    label: string;
+    value: string;
+  }) {
+    return (
+      <View
+        className={`rounded-xl border border-slate-100 bg-slate-50 px-3 py-3.5 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}
+      >
+        <View className="w-11 h-11 rounded-xl bg-white border border-slate-100 items-center justify-center">
+          <Icon size={18} stroke="#000000" strokeWidth={1.75} />
+        </View>
+        <View className={`flex-1 min-w-0 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
+          <Text
+            className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1 ${isRTL ? "text-right" : "text-left"}`}
+          >
+            {label}
+          </Text>
+          <Text
+            className={`text-sm font-semibold text-black leading-5 ${isRTL ? "text-right" : "text-left"}`}
+            numberOfLines={6}
+          >
+            {value}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  const industryTags = (profile.industry ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const showCapital =
+    profile.capital_seeking != null &&
+    typeof profile.capital_seeking === "number" &&
+    profile.capital_seeking > 0;
+
+  const showTeam =
+    profile.team_size != null && typeof profile.team_size === "number" && profile.team_size > 0;
+
+  const showInstrument =
+    Boolean(profile.investment_instrument) &&
+    profile.investment_instrument !== "Not interested in funding";
+
+  return (
+    <View className="gap-3">
+      {industryTags.length === 1 ? (
+        <PrefRow icon={Layers} label={t("profile.industry")} value={industryTags[0]} />
+      ) : industryTags.length > 1 ? (
+        <View className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+          <View className={`flex-row items-center mb-3 ${isRTL ? "flex-row-reverse" : ""}`}>
+            <View className="w-11 h-11 rounded-xl bg-white border border-slate-100 items-center justify-center">
+              <Layers size={18} stroke="#000000" strokeWidth={1.75} />
+            </View>
+            <Text
+              className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 flex-1 ${isRTL ? "mr-3 text-right" : "ml-3 text-left"}`}
+            >
+              {t("profile.industry")}
+            </Text>
+          </View>
+          <View className={`flex-row flex-wrap gap-2 ${isRTL ? "justify-end" : "justify-start"}`}>
+            {industryTags.map((tag, i) => (
+              <View
+                key={`${tag}-${i}`}
+                className="px-3 py-1.5 rounded-full bg-white border border-slate-200"
+              >
+                <Text className="text-xs font-semibold text-black">{tag}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {showCapital && profile.capital_seeking != null ? (
+        <PrefRow
+          icon={Banknote}
+          label={t("profile.capitalSeeking")}
+          value={`${profile.capital_seeking.toLocaleString()} SAR`}
+        />
+      ) : null}
+
+      {showTeam ? (
+        <PrefRow icon={Users} label={t("profile.teamSize")} value={String(profile.team_size)} />
+      ) : null}
+
+      {showInstrument ? (
+        <PrefRow
+          icon={Briefcase}
+          label={t("profile.investmentInstrument")}
+          value={String(profile.investment_instrument)}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+function startupHasCompanySummary(profile: Startup): boolean {
+  const industries = (profile.industry ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const capitalOk =
+    profile.capital_seeking != null &&
+    typeof profile.capital_seeking === "number" &&
+    profile.capital_seeking > 0;
+  const teamOk =
+    profile.team_size != null &&
+    typeof profile.team_size === "number" &&
+    profile.team_size > 0;
+  const instrumentOk =
+    Boolean(profile.investment_instrument) &&
+    profile.investment_instrument !== "Not interested in funding";
+  return industries.length > 0 || capitalOk || teamOk || instrumentOk;
+}
+
 // ─── Startup Dashboard ───────────────────────────────────────────────────────
 
 interface StartupData {
@@ -279,14 +410,37 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
               value={profile?.stage || "—"}
               icon={BarChart2}
             />
-            {pendingOffers > 0 && (
-              <StatCard
-                label="Offers"
-                value={pendingOffers}
-                icon={TrendingUp}
-              />
-            )}
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => router.push("/(stack)/startup-offers" as Href)}
+          >
+            <Card className="mb-4">
+              <View className={`flex-row items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}>
+                <View className={`flex-row items-center flex-1 min-w-0 ${isRTL ? "flex-row-reverse" : ""}`}>
+                  <View className="w-11 h-11 rounded-xl bg-slate-100 items-center justify-center">
+                    <TrendingUp size={20} color="#000000" strokeWidth={1.5} />
+                  </View>
+                  <View className={`flex-1 min-w-0 ${isRTL ? "mr-3 items-end" : "ml-3"}`}>
+                    <Text className={`font-bold text-black ${isRTL ? "text-right" : "text-left"}`}>
+                      {t("startupOffers.title")}
+                    </Text>
+                    <Text className={`text-xs text-slate-500 mt-0.5 ${isRTL ? "text-right" : "text-left"}`}>
+                      {t("startupOffers.pipelineCount", { count: pendingOffers })}
+                    </Text>
+                  </View>
+                </View>
+                {isRTL ? (
+                  <ChevronLeft size={20} stroke="#94a3b8" strokeWidth={2} />
+                ) : (
+                  <ChevronRight size={20} stroke="#94a3b8" strokeWidth={2} />
+                )}
+              </View>
+            </Card>
+          </TouchableOpacity>
+
+          {user?.id ? <StartupActivityFeed startupId={user.id} /> : null}
 
           {/* Status card */}
           <Card className="mb-4">
@@ -389,36 +543,15 @@ function StartupDashboard({ isRTL }: { isRTL: boolean }) {
             </View>
           </Card>
 
-          {/* Profile summary */}
-          {profile && (
+          {/* Company summary — same visual language as investor investment preferences */}
+          {profile && startupHasCompanySummary(profile) && (
             <Card className="mb-4">
-              <Text className={`text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ${isRTL ? "text-right" : "text-left"}`}>
+              <Text
+                className={`text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ${isRTL ? "text-right" : "text-left"}`}
+              >
                 {t("profile.companyInfo")}
               </Text>
-              <View className="space-y-2">
-                {profile.industry && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Building2 size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2">{profile.industry}</Text>
-                  </View>
-                )}
-                {profile.capital_seeking && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Banknote size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2">
-                      {t("dashboard.capitalSeeking")}: {profile.capital_seeking.toLocaleString()} SAR
-                    </Text>
-                  </View>
-                )}
-                {profile.team_size && (
-                  <View className={`flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                    <Users size={15} stroke="#64748b" strokeWidth={1.5} />
-                    <Text className="text-slate-600 text-sm ml-2">
-                      {t("dashboard.teamSize")}: {profile.team_size}
-                    </Text>
-                  </View>
-                )}
-              </View>
+              <StartupHomeCompanyInfo profile={profile} t={t} isRTL={isRTL} />
             </Card>
           )}
         </View>

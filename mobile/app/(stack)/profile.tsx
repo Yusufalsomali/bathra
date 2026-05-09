@@ -9,8 +9,9 @@ import {
   Switch,
   TextInput,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState, useEffect, useContext, useCallback } from "react";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
@@ -21,7 +22,7 @@ import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { Badge } from "@/components/ui/Badge";
-import { TrendingUp, Pencil } from "lucide-react-native";
+import { TrendingUp, Pencil, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 function SectionTitle({ title, isRTL }: { title: string; isRTL: boolean }) {
   return (
@@ -51,9 +52,16 @@ function BoolField({
 }
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, refreshProfile } = useAuth();
   const { t } = useContext(I18nContext);
   const { isRTL } = useRTL();
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as Href);
+  };
 
   const [profile, setProfile] = useState<Partial<Startup & Investor>>({});
   const [loading, setLoading] = useState(true);
@@ -134,20 +142,54 @@ export default function ProfileScreen() {
     }
   };
 
-  if (loading) return <LoadingScreen />;
+  const profileNavHeader = (
+    <View className={`bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-row items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+      <TouchableOpacity
+        onPress={goBack}
+        hitSlop={12}
+        className={isRTL ? "pl-2" : "pr-2"}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.back")}
+      >
+        {isRTL ? (
+          <ChevronRight size={22} stroke="#000000" strokeWidth={2} />
+        ) : (
+          <ChevronLeft size={22} stroke="#000000" strokeWidth={2} />
+        )}
+      </TouchableOpacity>
+      <Text
+        className={`text-xl font-black text-black flex-1 ${isRTL ? "text-right" : "text-left"}`}
+        numberOfLines={1}
+      >
+        {t("profile.title")}
+      </Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+        {profileNavHeader}
+        <LoadingScreen />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
+        {profileNavHeader}
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{
+            paddingBottom: 140 + insets.bottom + (isStartup ? 220 : 0),
+          }}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View className="bg-white px-6 pt-8 pb-6 border-b border-slate-100">
+          <View className="bg-white px-6 pt-6 pb-6 border-b border-slate-100">
             <View className="items-center">
               <Avatar name={user?.name || "?"} size={72} className="mb-3" />
               <Text className="text-xl font-black text-black">{user?.name}</Text>
@@ -296,8 +338,11 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Bottom action bar */}
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4">
+        {/* Bottom action bar — pad bottom by home indicator / gesture inset */}
+        <View
+          className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 pt-4"
+          style={{ paddingBottom: insets.bottom + 16 }}
+        >
           {editing ? (
             <View className="flex-row gap-3">
               <Button

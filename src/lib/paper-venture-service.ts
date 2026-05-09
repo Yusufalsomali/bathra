@@ -443,15 +443,6 @@ export class PaperVentureService {
 
     const wallet = walletResult.data;
 
-    const { error: statusError } = await supabase
-      .from("paper_investment_offers")
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", offerId);
-
-    if (statusError) {
-      return { success: false, error: statusError.message };
-    }
-
     const { error: walletError } = await supabase
       .from("paper_wallets")
       .update({
@@ -474,6 +465,15 @@ export class PaperVentureService {
       `Released reserved simulated funds for ${status} offer`,
       { offer_id: offerId, startup_id: offer.startup_id }
     );
+
+    const { error: statusError } = await supabase
+      .from("paper_investment_offers")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", offerId);
+
+    if (statusError) {
+      return { success: false, error: statusError.message };
+    }
 
     // Notify investor of rejection or cancellation
     const actionLabel = status === "rejected" ? "rejected" : "cancelled";
@@ -558,15 +558,6 @@ export class PaperVentureService {
       return { success: false, error: investmentError.message };
     }
 
-    const { error: offerUpdateError } = await supabase
-      .from("paper_investment_offers")
-      .update({ status: "accepted", updated_at: new Date().toISOString() })
-      .eq("id", offer.id);
-
-    if (offerUpdateError) {
-      return { success: false, error: offerUpdateError.message };
-    }
-
     const { error: walletError } = await supabase
       .from("paper_wallets")
       .update({
@@ -591,6 +582,15 @@ export class PaperVentureService {
       `Finalized simulated investment in ${startup.startup_name}`,
       { offer_id: offer.id, startup_id: offer.startup_id }
     );
+
+    const { error: offerUpdateError } = await supabase
+      .from("paper_investment_offers")
+      .update({ status: "accepted", updated_at: new Date().toISOString() })
+      .eq("id", offer.id);
+
+    if (offerUpdateError) {
+      return { success: false, error: offerUpdateError.message };
+    }
 
     // Notify investor of acceptance
     await NotificationService.createNotification({
