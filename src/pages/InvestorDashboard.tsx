@@ -180,7 +180,7 @@ const InvestorDashboard = () => {
               <InvestorPortfolioSection
                 summary={portfolioSummary}
                 onAddFunds={() => setIsAddFundsOpen(true)}
-                onOpenPortfolio={() => navigate("/portfolio")}
+                onOpenPortfolio={() => navigate("/startups")}
                 onCancelOffer={handleCancelOffer}
               />
             </div>

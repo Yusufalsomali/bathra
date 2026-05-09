@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -115,6 +116,7 @@ const InvestorBrowseStartups = ({
   maxStartups,
 }: InvestorBrowseStartupsProps) => {
   const navigate = useNavigate();
+  const { isRTL } = useLanguage();
   const [startups, setStartups] = useState<StartupBasicInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -322,6 +324,24 @@ const InvestorBrowseStartups = ({
     // The old toast functionality is replaced by the modal
   };
 
+  const handleToggleSaveCard = async (e: React.MouseEvent, startup: StartupBasicInfo) => {
+    e.stopPropagation();
+    if (!user?.id || savingId) return;
+    setSavingId(startup.id);
+    const isSaved = savedStartupIds.has(startup.id);
+    setSavedStartupIds((prev) => {
+      const next = new Set(prev);
+      isSaved ? next.delete(startup.id) : next.add(startup.id);
+      return next;
+    });
+    await InvestorStartupConnectionService.toggleSaved(
+      user.id,
+      startup.id,
+      startup.startup_name ?? startup.name
+    );
+    setSavingId(null);
+  };
+
   const handleInterested = async () => {
     if (!selectedStartup || !user || !profile) {
       toast({
@@ -370,6 +390,7 @@ const InvestorBrowseStartups = ({
         description: `Your interest in ${
           selectedStartup.startup_name || selectedStartup.name
         } has been recorded. The startup will be notified.`,
+        duration: 8000,
       });
     } catch (error) {
       console.error("Error showing interest:", error);
@@ -403,7 +424,7 @@ const InvestorBrowseStartups = ({
   );
 
   return (
-    <div>
+    <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
       <Navbar />
       <div className={`${isDashboard ? "" : "py-24"}`}>
       <div className="container mx-auto px-4">
@@ -556,13 +577,26 @@ const InvestorBrowseStartups = ({
                           <Sparkles className="mr-1 h-3.5 w-3.5" />
                           {startup.verified ? "Active Opportunity" : "New"}
                         </Badge>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5 items-center">
                           {interestedStartups.includes(startup.id) && (
                             <Badge className="border-emerald-300/20 bg-emerald-400/15 text-emerald-50 hover:bg-emerald-400/15">
-                              <Star className="mr-1 h-3.5 w-3.5" />
+                              <Star className="mr-1 h-3.5 w-3.5 fill-current" />
                               Interested
                             </Badge>
                           )}
+                          <button
+                            onClick={(e) => handleToggleSaveCard(e, startup)}
+                            className="p-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                            title={savedStartupIds.has(startup.id) ? "Remove from saved" : "Save startup"}
+                          >
+                            <Star
+                              className={`h-4 w-4 transition-colors ${
+                                savedStartupIds.has(startup.id)
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-white/70"
+                              }`}
+                            />
+                          </button>
                           {investorProfile && (() => {
                             const score = calcCompatibilityScore(startup, investorProfile);
                             return (
@@ -576,7 +610,7 @@ const InvestorBrowseStartups = ({
 
                       <div className="flex items-end justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-xs uppercase tracking-[0.22em] text-white/65">
+                          <div className={`text-xs text-white/65 ${isRTL ? "" : "uppercase tracking-[0.22em]"}`}>
                             {startup.industry}
                           </div>
                           <div className="mt-2 line-clamp-1 text-2xl font-semibold text-white">
@@ -641,7 +675,7 @@ const InvestorBrowseStartups = ({
 
                       <div className="grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-muted/20 p-4">
                         <div className="space-y-1">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          <div className={`text-[11px] text-muted-foreground ${isRTL ? "" : "uppercase tracking-[0.18em]"}`}>
                             Valuation
                           </div>
                           <div className="text-sm font-semibold">
@@ -649,7 +683,7 @@ const InvestorBrowseStartups = ({
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          <div className={`text-[11px] text-muted-foreground ${isRTL ? "" : "uppercase tracking-[0.18em]"}`}>
                             Stage
                           </div>
                           <div className="text-sm font-semibold">
@@ -657,7 +691,7 @@ const InvestorBrowseStartups = ({
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          <div className={`text-[11px] text-muted-foreground ${isRTL ? "" : "uppercase tracking-[0.18em]"}`}>
                             Sector
                           </div>
                           <div className="text-sm font-semibold">

@@ -77,6 +77,7 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
   isInterested = false,
 }) => {
   const [isInfoRequestModalOpen, setIsInfoRequestModalOpen] = useState(false);
+  const [isInfoRequestLoading, setIsInfoRequestLoading] = useState(false);
   const [isInvestDialogOpen, setIsInvestDialogOpen] = useState(false);
   const [walletSummary, setWalletSummary] = useState<PaperWalletSummary | null>(
     null
@@ -92,7 +93,11 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
   const { user, profile } = useAuth();
 
   const handleRequestInfo = () => {
-    setIsInfoRequestModalOpen(true);
+    setIsInfoRequestLoading(true);
+    setTimeout(() => {
+      setIsInfoRequestModalOpen(true);
+      setIsInfoRequestLoading(false);
+    }, 150);
   };
 
   useEffect(() => {
@@ -404,8 +409,13 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
               onClick={handleRequestInfo}
               variant="outline"
               className="gap-2 w-full sm:w-auto"
+              disabled={isInfoRequestLoading}
             >
-              <MessageCircle className="h-4 w-4" />
+              {isInfoRequestLoading ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <MessageCircle className="h-4 w-4" />
+              )}
               <span className="hidden xs:inline">Request More Info</span>
               <span className="xs:hidden">Request Info</span>
             </Button>
