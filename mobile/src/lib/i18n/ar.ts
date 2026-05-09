@@ -120,6 +120,11 @@ export const ar = {
     interestedSent: "تم إبداء الاهتمام!",
     infoRequestSent: "تم إرسال طلب المعلومات!",
     alreadyConnected: "متواصل بالفعل",
+    duplicateInterestTitle: "تم إبداء الاهتمام مسبقاً",
+    duplicateInterestMessage:
+      "لقد أبديت اهتمامك بهذه الشركة بالفعل. يمكن لكل مستثمر إبداء الاهتمام مرة واحدة لكل شركة.",
+    duplicateInfoRequestTitle: "تم إرسال الطلب مسبقاً",
+    duplicateInfoRequestMessage: "لقد أرسلت طلب معلومات لهذه الشركة بالفعل.",
     viewProfile: "عرض الملف",
   },
   matchmaking: {

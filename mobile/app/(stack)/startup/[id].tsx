@@ -13,6 +13,7 @@ import { useAuth } from "@/context/auth-context";
 import { I18nContext } from "@/context/i18n-context";
 import { useRTL } from "@/hooks/useRTL";
 import { supabase } from "@/lib/supabase/client";
+import { alertConnectionInsertError } from "@/lib/connection-insert-message";
 import { Startup } from "@/types/database";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -81,8 +82,7 @@ export default function StartupDetailScreen() {
         type === "interested" ? t("explore.interestedSent") : t("explore.infoRequestSent")
       );
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t("common.error");
-      Alert.alert(t("common.error"), msg);
+      alertConnectionInsertError(err, type, t);
     } finally {
       setConnecting(false);
     }

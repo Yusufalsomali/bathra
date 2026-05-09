@@ -120,6 +120,12 @@ export const en = {
     interestedSent: "Interest expressed!",
     infoRequestSent: "Info request sent!",
     alreadyConnected: "Already connected",
+    duplicateInterestTitle: "Interest already expressed",
+    duplicateInterestMessage:
+      "You've already expressed interest in this startup. Each investor can only express interest once per startup.",
+    duplicateInfoRequestTitle: "Request already sent",
+    duplicateInfoRequestMessage:
+      "You've already sent an info request for this startup.",
     viewProfile: "View profile",
   },
   matchmaking: {
